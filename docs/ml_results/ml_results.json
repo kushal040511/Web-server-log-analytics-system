@@ -1,0 +1,1138 @@
+{
+ "task": "binary classification: 0 = normal, 1 = attack",
+ "classes": [
+  "normal",
+  "attack"
+ ],
+ "train": 153847,
+ "test": 261076,
+ "features": 12292,
+ "main_model": "Factorization Machine (ours)",
+ "results": [
+  {
+   "model": "Linear SVM",
+   "train_seconds": 11.8,
+   "tn": 253007,
+   "fp": 404,
+   "fn": 88,
+   "tp": 7577,
+   "accuracy": 0.9981,
+   "precision": 0.9494,
+   "recall": 0.9885,
+   "f1": 0.9686
+  },
+  {
+   "model": "Factorization Machine (ours)",
+   "train_seconds": 182.4,
+   "tn": 253012,
+   "fp": 399,
+   "fn": 118,
+   "tp": 7547,
+   "accuracy": 0.998,
+   "precision": 0.9498,
+   "recall": 0.9846,
+   "f1": 0.9669
+  },
+  {
+   "model": "Logistic Regression",
+   "train_seconds": 8.9,
+   "tn": 252974,
+   "fp": 437,
+   "fn": 112,
+   "tp": 7553,
+   "accuracy": 0.9979,
+   "precision": 0.9453,
+   "recall": 0.9854,
+   "f1": 0.9649
+  },
+  {
+   "model": "Decision Tree",
+   "train_seconds": 75.7,
+   "tn": 252851,
+   "fp": 560,
+   "fn": 317,
+   "tp": 7348,
+   "accuracy": 0.9966,
+   "precision": 0.9292,
+   "recall": 0.9586,
+   "f1": 0.9437
+  },
+  {
+   "model": "Gradient Boosted Trees",
+   "train_seconds": 415.1,
+   "tn": 251778,
+   "fp": 1633,
+   "fn": 300,
+   "tp": 7365,
+   "accuracy": 0.9926,
+   "precision": 0.8185,
+   "recall": 0.9609,
+   "f1": 0.884
+  },
+  {
+   "model": "Naive Bayes",
+   "train_seconds": 1.1,
+   "tn": 252836,
+   "fp": 575,
+   "fn": 1508,
+   "tp": 6157,
+   "accuracy": 0.992,
+   "precision": 0.9146,
+   "recall": 0.8033,
+   "f1": 0.8553
+  },
+  {
+   "model": "Multilayer Perceptron",
+   "train_seconds": 215.8,
+   "tn": 251310,
+   "fp": 2101,
+   "fn": 476,
+   "tp": 7189,
+   "accuracy": 0.9901,
+   "precision": 0.7738,
+   "recall": 0.9379,
+   "f1": 0.848
+  },
+  {
+   "model": "Random Forest",
+   "train_seconds": 69.4,
+   "tn": 253167,
+   "fp": 244,
+   "fn": 2216,
+   "tp": 5449,
+   "accuracy": 0.9906,
+   "precision": 0.9571,
+   "recall": 0.7109,
+   "f1": 0.8158
+  }
+ ],
+ "nasa": {
+  "urls_scored": 31026,
+  "urls_flagged": 120,
+  "requests_flagged": 1754,
+  "top_flagged": [
+   {
+    "endpoint": "/msfc/description/description.html",
+    "hits": 113,
+    "hosts": 99,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/ips-small.gif",
+    "hits": 102,
+    "hosts": 88,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/instruments/hut_logo_icon.gif",
+    "hits": 98,
+    "hosts": 86,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/colorbar.gif",
+    "hits": 97,
+    "hosts": 88,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/instruments/uitlogo_tiny.gif",
+    "hits": 96,
+    "hosts": 85,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/mdss/ped/acs/cmu.html",
+    "hits": 26,
+    "hosts": 13,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/starview.html",
+    "hits": 12,
+    "hosts": 12,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/spacelab/spacelab.html",
+    "hits": 11,
+    "hosts": 11,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/starview.gif",
+    "hits": 11,
+    "hosts": 11,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/instruments/imaging.html",
+    "hits": 9,
+    "hosts": 8,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/instruments/hut.html",
+    "hits": 9,
+    "hosts": 9,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/instruments/hut_logo_small.gif",
+    "hits": 8,
+    "hosts": 8,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/instruments/hut_line_bay-small.gif",
+    "hits": 8,
+    "hosts": 8,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/instruments/spiral_gallery.gif",
+    "hits": 7,
+    "hosts": 7,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/software/viewers/speak.exe",
+    "hits": 6,
+    "hosts": 6,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/Harvest/cgi-bin/BrokerQuery.pl.cgi?query=oms&host=titan04.ksc.nasa.gov%3A8501&caseflag=on&wordflag=on&errorflag=0&opaqueflag=on&descflag=on&verbose=on&maxresultflag=50",
+    "hits": 6,
+    "hosts": 2,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/htbin/wais.pl?transcripts",
+    "hits": 5,
+    "hosts": 4,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/instruments/hut_line-small.gif",
+    "hits": 4,
+    "hosts": 4,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/instruments/uit.html",
+    "hits": 4,
+    "hosts": 4,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/instruments/wuppe.html",
+    "hits": 4,
+    "hosts": 4,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/instruments/uit_line_bay-small.gif",
+    "hits": 3,
+    "hosts": 3,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/instruments/wuppe-logo.gif",
+    "hits": 3,
+    "hosts": 3,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/elv/new01.gif>%20<li><a%20href=",
+    "hits": 3,
+    "hosts": 3,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/instruments/uitlogo.gif",
+    "hits": 3,
+    "hosts": 3,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/cgi-bin/BrokerQuery.pl?query=oms&host=titan04.ksc.nasa.gov%3A8501&caseflag=on&wordflag=on&errorflag=0&opaqueflag=on&descflag=on&verbose=on&maxresultflag=50",
+    "hits": 3,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/instruments/wuppe_line_bay-small.gif",
+    "hits": 3,
+    "hosts": 3,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/Harvest/cgi-bin/HarvestGather.cgi?host=titan04.ksc.nasa.gov&port=8500&timestamp=0&flag=",
+    "hits": 3,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/htbin/wais.pl?spoczip.exe",
+    "hits": 2,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/~downs/cgi-bin/BrokerQuery.pl.cgi?query=oms&host=titan04.ksc.nasa.gov%3A8501&caseflag=on&wordflag=on&errorflag=0&opaqueflag=on&descflag=on&verbose=on&maxresultflag=50",
+    "hits": 2,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/instruments/polarimetry.html",
+    "hits": 2,
+    "hosts": 2,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/htbin/wais.pl?winvn.exe",
+    "hits": 2,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/instruments/spectroscopy.html",
+    "hits": 2,
+    "hosts": 2,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/htbin/wais.pl?TRANSCRIPT",
+    "hits": 2,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "&\ufffdG\u0018\u0001",
+    "hits": 2,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/htbin/wais.pl?challanger+transcripts",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/elv/elvpage.htm/\"MISSION\"",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/software/winvn/winvn.html>WinVN</a>,",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/cgi-bin/BrokerQuery.pl?query=oms%04%06%06&host=titan04.ksc.nasa.gov%3A8501&caseflag=on&wordflag=on&errorflag=0&opaqueflag=on&descflag=on&verbose=on&maxresultflag=50",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/htbin/wais.pl?challenger+transcripts",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/shuttle/missions/sts-67/images/k95p0391.gif></a>",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/htbin/wais.pl?video+and+.avi",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/htbin/wais.pl?%22new+mission+control+center%22",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/~downs/harvest-1.2/cgi-bin/BrokerQuery.pl?query=oms&host=titan04.ksc.nasa.gov%3A8501&caseflag=on&wordflag=on&errorflag=0&opaqueflag=on&descflag=on&verbose=on&maxresultflag=50",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/instruments/spectrum-tiny.gif",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/history/a[p;;p/apollo.html",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/htbin/wais.pl?ASTRONAUT+AND+SELECTION+AND+SHUTTLE",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/tiny_moose.gif",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/facts/http:www.disney.com",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/htbin/wais.pl?today%27s+and+landing",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/htbin/wais.pl?APOLLO%2013%20TRANSCRIPT",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/history/apo;;o/apollo-13/apollo-13.html",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/instruments/uit_line_small.gif",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/~downs/harvest-1.2/cgi-bin/BrokerQuery.pl.cgi?query=oms&host=titan04.ksc.nasa.gov%3A8501&caseflag=on&wordflag=on&errorflag=0&opaqueflag=on&descflag=on&verbose=on&maxresultflag=50",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/htbin/wais.pl?IPR%27s+and+PR%27s",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/htbin/wais.pl?pictures+of+Jupiter%27s+outer+satellites",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/htbin/wais.pl?discovrey%27s+launch",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/htbin/wais.pl?%22STS+71%22+and+%22flight+path%22",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/L\ufffd\u0018\ufffd\ufffd\ufffdN^NuNV",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/transmit-small.gif",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/ips/ips.html",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/htbin/wais.pl?discovrey%27s+pithers",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/instruments/uit-tech.html",
+    "hits": 2,
+    "hosts": 2,
+    "p_attack": 0.999
+   },
+   {
+    "endpoint": "/htbin/wais.pl?100+and+U.S.+and+Human+and+Space+and+Flight",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.999
+   },
+   {
+    "endpoint": "/htbin/wais.pl?*.mov+or+*.avi",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.999
+   },
+   {
+    "endpoint": "/http//www.cs.tut.fi/~p116711/http//www.cs.tut.fi/~p116711/http//www.cs.tut.fi/~p116711/http//www.cs.tut.fi/~p116711",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.999
+   },
+   {
+    "endpoint": "/c:/trn/trn.hml",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.999
+   },
+   {
+    "endpoint": "/shuttle/missions/sts-71/images/file:C|/HTTPD/HTDOCS/IMAGES/WEEYE.GIF",
+    "hits": 2,
+    "hosts": 1,
+    "p_attack": 0.998
+   },
+   {
+    "endpoint": "/msfc/description/instruments/hut-tech.html",
+    "hits": 5,
+    "hosts": 5,
+    "p_attack": 0.997
+   },
+   {
+    "endpoint": "/htbin/wais.pl?sts-69--wsf-2+%26+spartan+201-03",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.997
+   },
+   {
+    "endpoint": "/shuttle/missions/\\\\www.cinday-cga.com:p09\\",
+    "hits": 2,
+    "hosts": 1,
+    "p_attack": 0.996
+   },
+   {
+    "endpoint": "/techreports.ksc.nasa.gov/techreports.ksc.nasa.gov/ktrs_hom.htm",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.996
+   },
+   {
+    "endpoint": "/msfc/description/launch-small.gif",
+    "hits": 101,
+    "hosts": 90,
+    "p_attack": 0.995
+   },
+   {
+    "endpoint": "/htbin/wais.pl?public+tours+with+space+center",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.994
+   },
+   {
+    "endpoint": "/htbin/wais.pl?(kempler%20elements)%20and%20(sts70)",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.993
+   },
+   {
+    "endpoint": "/htbin/wais.pl?%22mobile+air+traffic%22",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.992
+   },
+   {
+    "endpoint": "/htbin/wais.pl?logo+lockheed+.gif",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.99
+   },
+   {
+    "endpoint": "/msfc/description/ultraviolet.html",
+    "hits": 2,
+    "hosts": 2,
+    "p_attack": 0.989
+   },
+   {
+    "endpoint": "/shuttle/missions/sts-67/sts-67-day-03-highlights.html",
+    "hits": 26,
+    "hosts": 23,
+    "p_attack": 0.988
+   },
+   {
+    "endpoint": "/htbin/wais.pl?SELECT+AND+TV",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.987
+   },
+   {
+    "endpoint": "/msfc/description/instruments/wuppe-button.gif",
+    "hits": 94,
+    "hosts": 84,
+    "p_attack": 0.986
+   },
+   {
+    "endpoint": "/shuttle/missions/sts-67/sts-67-day-13-highlights.html",
+    "hits": 21,
+    "hosts": 17,
+    "p_attack": 0.985
+   },
+   {
+    "endpoint": "/msfc/description/instruments/uoregon.GIF",
+    "hits": 97,
+    "hosts": 84,
+    "p_attack": 0.981
+   },
+   {
+    "endpoint": "/history/apollo\\apollo.html",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.975
+   },
+   {
+    "endpoint": "/htbin/wais.pl?september%20'95%20launch%20schedule",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.968
+   },
+   {
+    "endpoint": "/htbin/wais.pl?nasa+select+tv",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.964
+   },
+   {
+    "endpoint": "/www.ygu.ac.jp",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.964
+   },
+   {
+    "endpoint": "/bin/search?p=uri+gregarin",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.96
+   },
+   {
+    "endpoint": "/shuttle/missions/sts-69/movies/movies.htmlhttp://www.fys.ruu.nl",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.954
+   },
+   {
+    "endpoint": "/htbin/wais.pl?NASA+AND+SELECT",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.953
+   },
+   {
+    "endpoint": "/msfc/description/shuttle/endeavour.html",
+    "hits": 17,
+    "hosts": 16,
+    "p_attack": 0.938
+   },
+   {
+    "endpoint": "/persons/astronauts/q-to-t/TrulyRH.txt",
+    "hits": 73,
+    "hosts": 51,
+    "p_attack": 0.93
+   },
+   {
+    "endpoint": "/htbin/wais.pl?sr%26qa",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.92
+   },
+   {
+    "endpoint": "/htbin/wais.pl?ASTRONAUT+AND+SELECTION",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.915
+   },
+   {
+    "endpoint": "/htbin/wais.pl?KSC+and+95EC+and+0752",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.91
+   },
+   {
+    "endpoint": "/icons/DocsRightArrowSmall.gif",
+    "hits": 22,
+    "hosts": 2,
+    "p_attack": 0.9
+   },
+   {
+    "endpoint": "/`",
+    "hits": 13,
+    "hosts": 12,
+    "p_attack": 0.892
+   },
+   {
+    "endpoint": "/insert-name.html",
+    "hits": 3,
+    "hosts": 2,
+    "p_attack": 0.888
+   },
+   {
+    "endpoint": "/bin/search?p=uri+greg",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.882
+   },
+   {
+    "endpoint": "/software/winvn/userguide/docsrigh.gif",
+    "hits": 524,
+    "hosts": 457,
+    "p_attack": 0.877
+   },
+   {
+    "endpoint": "/htbin/wais.pl?%22satellite+images%22",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.867
+   },
+   {
+    "endpoint": "/htbin/wais.pl?challenger+and+crew+and+transcripts",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.839
+   },
+   {
+    "endpoint": "/.../liftoff.html",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.822
+   },
+   {
+    "endpoint": "/htbin/wais.pl?challenger+transcript",
+    "hits": 2,
+    "hosts": 2,
+    "p_attack": 0.808
+   },
+   {
+    "endpoint": "/htbin/wais.pl?total%2Bsquare%2Bfeet",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.805
+   },
+   {
+    "endpoint": "/shuttle/technology\\images",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.777
+   },
+   {
+    "endpoint": "/.../stsref-toc.html",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.754
+   },
+   {
+    "endpoint": "/htbin/wais.pl?jan.+28%2C1986+flight+recorder",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.698
+   },
+   {
+    "endpoint": "/htbin/wais.pl?B%26K",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.688
+   },
+   {
+    "endpoint": "/payloads/processing/vpart3s.gif",
+    "hits": 5,
+    "hosts": 2,
+    "p_attack": 0.671
+   },
+   {
+    "endpoint": "/htbin/wais.pl?select",
+    "hits": 2,
+    "hosts": 2,
+    "p_attack": 0.651
+   },
+   {
+    "endpoint": "/htbin/wais.pl?SELECT+",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.651
+   },
+   {
+    "endpoint": "/shuttle/technology/sts-newsref/spacelab.html#spacelab-pallet-ecs",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.631
+   },
+   {
+    "endpoint": "/htbin/wais.pl?nasa+select",
+    "hits": 3,
+    "hosts": 3,
+    "p_attack": 0.615
+   },
+   {
+    "endpoint": "/htbin/wais.pl?%22Todd+Corey%22",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.567
+   },
+   {
+    "endpoint": "/htbin/wais.pl?%7Fpayload",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.567
+   },
+   {
+    "endpoint": "/msfc/description/ips/astro-osp-little.gif",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.567
+   },
+   {
+    "endpoint": "/cgi-bin/imagemap/fr?294,180",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.527
+   },
+   {
+    "endpoint": "/htbin/wais.pl?access%2Bconstruction",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.517
+   },
+   {
+    "endpoint": "/Tools/Icons/Help/hw.embossed.grey.gif",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.512
+   },
+   {
+    "endpoint": "/cgi-bin/imagemap/countdown?94,182",
+    "hits": 2,
+    "hosts": 2,
+    "p_attack": 0.504
+   }
+  ],
+  "review_sample": [
+   {
+    "endpoint": "/msfc/description/instruments/uit.html",
+    "hits": 4,
+    "hosts": 4,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/~downs/harvest-1.2/cgi-bin/BrokerQuery.pl?query=oms&host=titan04.ksc.nasa.gov%3A8501&caseflag=on&wordflag=on&errorflag=0&opaqueflag=on&descflag=on&verbose=on&maxresultflag=50",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/htbin/wais.pl?jan.+28%2C1986+flight+recorder",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.698
+   },
+   {
+    "endpoint": "/msfc/description/shuttle/endeavour.html",
+    "hits": 17,
+    "hosts": 16,
+    "p_attack": 0.938
+   },
+   {
+    "endpoint": "/msfc/description/spacelab/spacelab.html",
+    "hits": 11,
+    "hosts": 11,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/description.html",
+    "hits": 113,
+    "hosts": 99,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/bin/search?p=uri+greg",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.882
+   },
+   {
+    "endpoint": "/~downs/cgi-bin/BrokerQuery.pl.cgi?query=oms&host=titan04.ksc.nasa.gov%3A8501&caseflag=on&wordflag=on&errorflag=0&opaqueflag=on&descflag=on&verbose=on&maxresultflag=50",
+    "hits": 2,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/instruments/hut_logo_small.gif",
+    "hits": 8,
+    "hosts": 8,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/htbin/wais.pl?sr%26qa",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.92
+   },
+   {
+    "endpoint": "/icons/DocsRightArrowSmall.gif",
+    "hits": 22,
+    "hosts": 2,
+    "p_attack": 0.9
+   },
+   {
+    "endpoint": "/htbin/wais.pl?%22Todd+Corey%22",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.567
+   },
+   {
+    "endpoint": "/htbin/wais.pl?video+and+.avi",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/htbin/wais.pl?SELECT+",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.651
+   },
+   {
+    "endpoint": "/payloads/processing/vpart3s.gif",
+    "hits": 5,
+    "hosts": 2,
+    "p_attack": 0.671
+   },
+   {
+    "endpoint": "/Tools/Icons/Help/hw.embossed.grey.gif",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.512
+   },
+   {
+    "endpoint": "/htbin/wais.pl?NASA+AND+SELECT",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.953
+   },
+   {
+    "endpoint": "/shuttle/missions/sts-67/sts-67-day-03-highlights.html",
+    "hits": 26,
+    "hosts": 23,
+    "p_attack": 0.988
+   },
+   {
+    "endpoint": "/cgi-bin/imagemap/fr?294,180",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.527
+   },
+   {
+    "endpoint": "/htbin/wais.pl?IPR%27s+and+PR%27s",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/htbin/wais.pl?transcripts",
+    "hits": 5,
+    "hosts": 4,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/htbin/wais.pl?(kempler%20elements)%20and%20(sts70)",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.993
+   },
+   {
+    "endpoint": "/msfc/description/starview.html",
+    "hits": 12,
+    "hosts": 12,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/bin/search?p=uri+gregarin",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.96
+   },
+   {
+    "endpoint": "/msfc/description/instruments/wuppe_line_bay-small.gif",
+    "hits": 3,
+    "hosts": 3,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/software/winvn/winvn.html>WinVN</a>,",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/shuttle/technology/sts-newsref/spacelab.html#spacelab-pallet-ecs",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.631
+   },
+   {
+    "endpoint": "/msfc/description/instruments/spiral_gallery.gif",
+    "hits": 7,
+    "hosts": 7,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/htbin/wais.pl?public+tours+with+space+center",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.994
+   },
+   {
+    "endpoint": "/elv/new01.gif>%20<li><a%20href=",
+    "hits": 3,
+    "hosts": 3,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/.../stsref-toc.html",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.754
+   },
+   {
+    "endpoint": "/htbin/wais.pl?%22mobile+air+traffic%22",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.992
+   },
+   {
+    "endpoint": "/htbin/wais.pl?discovrey%27s+pithers",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/elv/elvpage.htm/\"MISSION\"",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/shuttle/missions/\\\\www.cinday-cga.com:p09\\",
+    "hits": 2,
+    "hosts": 1,
+    "p_attack": 0.996
+   },
+   {
+    "endpoint": "/cgi-bin/BrokerQuery.pl?query=oms&host=titan04.ksc.nasa.gov%3A8501&caseflag=on&wordflag=on&errorflag=0&opaqueflag=on&descflag=on&verbose=on&maxresultflag=50",
+    "hits": 3,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/htbin/wais.pl?nasa+select",
+    "hits": 3,
+    "hosts": 3,
+    "p_attack": 0.615
+   },
+   {
+    "endpoint": "/msfc/description/instruments/hut.html",
+    "hits": 9,
+    "hosts": 9,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/transmit-small.gif",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/instruments/wuppe-logo.gif",
+    "hits": 3,
+    "hosts": 3,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/ips-small.gif",
+    "hits": 102,
+    "hosts": 88,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/ips/astro-osp-little.gif",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 0.567
+   },
+   {
+    "endpoint": "/msfc/description/instruments/spectroscopy.html",
+    "hits": 2,
+    "hosts": 2,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/L\ufffd\u0018\ufffd\ufffd\ufffdN^NuNV",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/htbin/wais.pl?winvn.exe",
+    "hits": 2,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/instruments/hut_logo_icon.gif",
+    "hits": 98,
+    "hosts": 86,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/htbin/wais.pl?%22new+mission+control+center%22",
+    "hits": 1,
+    "hosts": 1,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/instruments/hut_line-small.gif",
+    "hits": 4,
+    "hosts": 4,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/instruments/polarimetry.html",
+    "hits": 2,
+    "hosts": 2,
+    "p_attack": 1.0
+   },
+   {
+    "endpoint": "/msfc/description/instruments/wuppe-button.gif",
+    "hits": 94,
+    "hosts": 84,
+    "p_attack": 0.986
+   }
+  ]
+ }
+}

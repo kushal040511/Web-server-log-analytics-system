@@ -1,0 +1,8 @@
+data/access_log_*
+output/*
+!output/.gitkeep
+!data/.gitkeep
+data/attacks/
+__pycache__/
+*.pyc
+.DS_Store

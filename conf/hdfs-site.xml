@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+
+  <!-- Two DataNodes, two copies of every block. This is what makes the
+       replication story real rather than claimed: kill one DataNode and the
+       data is still readable. -->
+  <property>
+    <name>dfs.replication</name>
+    <value>2</value>
+  </property>
+
+  <property>
+    <name>dfs.namenode.name.dir</name>
+    <value>file:///hadoop/dfs/name</value>
+  </property>
+  <property>
+    <name>dfs.datanode.data.dir</name>
+    <value>file:///hadoop/dfs/data</value>
+  </property>
+
+  <property>
+    <name>dfs.namenode.rpc-bind-host</name>
+    <value>0.0.0.0</value>
+  </property>
+  <property>
+    <name>dfs.namenode.http-bind-host</name>
+    <value>0.0.0.0</value>
+  </property>
+
+  <!-- Container hostnames don't reverse-resolve; without this DataNodes are
+       rejected at registration. -->
+  <property>
+    <name>dfs.namenode.datanode.registration.ip-hostname-check</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>dfs.webhdfs.enabled</name>
+    <value>true</value>
+  </property>
+
+  <!-- Single-user teaching cluster: permission checks add friction, not safety. -->
+  <property>
+    <name>dfs.permissions.enabled</name>
+    <value>false</value>
+  </property>
+
+  <!-- A laptop volume is small; don't let HDFS refuse writes over headroom. -->
+  <property>
+    <name>dfs.datanode.du.reserved</name>
+    <value>1073741824</value>
+  </property>
+
+</configuration>

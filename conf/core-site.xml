@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+
+  <!-- Every component reaches HDFS through this one address. -->
+  <property>
+    <name>fs.defaultFS</name>
+    <value>hdfs://namenode:8020</value>
+  </property>
+
+  <property>
+    <name>hadoop.tmp.dir</name>
+    <value>/hadoop/tmp</value>
+  </property>
+
+  <!-- Lets the client container write as root without a Unix user mapping. -->
+  <property>
+    <name>hadoop.proxyuser.root.hosts</name>
+    <value>*</value>
+  </property>
+  <property>
+    <name>hadoop.proxyuser.root.groups</name>
+    <value>*</value>
+  </property>
+
+</configuration>

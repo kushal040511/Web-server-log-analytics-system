@@ -1,0 +1,148 @@
+# Log Analytics System for a Web Server — local cluster
+name: loganalytics
+
+# All services run the same image; the command selects the role.
+x-base: &base
+  build:
+    context: .
+    dockerfile: docker/Dockerfile
+  image: loganalytics/hadoop-spark:3.3.6-3.5.3
+  restart: unless-stopped
+
+# Config is mounted read-only so you can edit it without rebuilding.
+x-conf-volumes: &conf-volumes
+  - ./conf/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml:ro
+  - ./conf/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml:ro
+  - ./conf/core-site.xml:/opt/spark/conf/core-site.xml:ro
+  - ./conf/hdfs-site.xml:/opt/spark/conf/hdfs-site.xml:ro
+  - ./conf/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf:ro
+
+services:
+
+  namenode:
+    <<: *base
+    container_name: namenode
+    hostname: namenode
+    command: ["namenode"]
+    ports:
+      - "9870:9870"          # HDFS web UI  -> http://localhost:9870
+      - "8020:8020"          # HDFS RPC
+    volumes:
+      - namenode-data:/hadoop/dfs/name
+      - ./conf/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml:ro
+      - ./conf/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml:ro
+      - ./conf/core-site.xml:/opt/spark/conf/core-site.xml:ro
+      - ./conf/hdfs-site.xml:/opt/spark/conf/hdfs-site.xml:ro
+      - ./conf/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf:ro
+    healthcheck:
+      test: ["CMD-SHELL", "hdfs dfsadmin -report > /dev/null 2>&1"]
+      interval: 15s
+      timeout: 10s
+      retries: 12
+      start_period: 45s
+
+  datanode1:
+    <<: *base
+    container_name: datanode1
+    hostname: datanode1
+    command: ["datanode"]
+    depends_on: [namenode]
+    volumes:
+      - datanode1-data:/hadoop/dfs/data
+      - ./conf/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml:ro
+      - ./conf/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml:ro
+      - ./conf/core-site.xml:/opt/spark/conf/core-site.xml:ro
+      - ./conf/hdfs-site.xml:/opt/spark/conf/hdfs-site.xml:ro
+      - ./conf/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf:ro
+
+  datanode2:
+    <<: *base
+    container_name: datanode2
+    hostname: datanode2
+    command: ["datanode"]
+    depends_on: [namenode]
+    volumes:
+      - datanode2-data:/hadoop/dfs/data
+      - ./conf/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml:ro
+      - ./conf/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml:ro
+      - ./conf/core-site.xml:/opt/spark/conf/core-site.xml:ro
+      - ./conf/hdfs-site.xml:/opt/spark/conf/hdfs-site.xml:ro
+      - ./conf/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf:ro
+
+  spark-master:
+    <<: *base
+    container_name: spark-master
+    hostname: spark-master
+    command: ["spark-master"]
+    depends_on: [namenode]
+    ports:
+      - "8080:8080"          # Spark master UI -> http://localhost:8080
+      - "7077:7077"
+    volumes: *conf-volumes
+
+  spark-worker:
+    <<: *base
+    container_name: spark-worker
+    hostname: spark-worker
+    command: ["spark-worker"]
+    depends_on: [spark-master]
+    environment:
+      # 2 cores + 2g for a pipeline job's executor, plus headroom.
+      SPARK_WORKER_CORES: "3"
+      SPARK_WORKER_MEMORY: "3g"
+    ports:
+      - "8081:8081"          # Spark worker UI
+    volumes: *conf-volumes
+
+  # The container you actually work in: hdfs commands and spark-submit.
+  client:
+    <<: *base
+    container_name: client
+    hostname: client
+    command: ["client"]
+    depends_on: [namenode, spark-master]
+    volumes:
+      - ./conf/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml:ro
+      - ./conf/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml:ro
+      - ./conf/core-site.xml:/opt/spark/conf/core-site.xml:ro
+      - ./conf/hdfs-site.xml:/opt/spark/conf/hdfs-site.xml:ro
+      - ./conf/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf:ro
+      - ./jobs:/workspace/jobs
+      - ./data:/workspace/data
+      - ./output:/workspace/output
+
+  # The website. Report pages read ./output only, so they survive the cluster
+  # going down.
+  web:
+    <<: *base
+    container_name: web
+    hostname: web
+    command: ["web"]
+    depends_on: [namenode, spark-master]
+    ports:
+      - "8050:8050"          # website -> http://localhost:8050
+    volumes:
+      - ./web:/workspace/web
+      - ./output:/workspace/output
+      - ./conf/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml:ro
+      - ./conf/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml:ro
+      - ./conf/core-site.xml:/opt/spark/conf/core-site.xml:ro
+      - ./conf/hdfs-site.xml:/opt/spark/conf/hdfs-site.xml:ro
+      - ./conf/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf:ro
+
+  # Optional — job history for demos.  docker compose --profile history up -d
+  spark-history:
+    <<: *base
+    container_name: spark-history
+    hostname: spark-history
+    command: ["history"]
+    depends_on: [namenode]
+    profiles: ["history"]
+    ports:
+      - "18080:18080"        # -> http://localhost:18080
+    volumes: *conf-volumes
+
+volumes:
+  namenode-data:
+  datanode1-data:
+  datanode2-data:
