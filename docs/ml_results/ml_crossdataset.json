@@ -1,0 +1,80 @@
+[
+ {
+  "experiment": "A: train Fwaf -> test HttpParams",
+  "model": "Factorization Machine (ours)",
+  "train_seconds": 194.5,
+  "tn": 18615,
+  "fp": 221,
+  "fn": 403,
+  "tp": 11353,
+  "accuracy": 0.9796,
+  "precision": 0.9809,
+  "recall": 0.9657,
+  "f1": 0.9733
+ },
+ {
+  "experiment": "A: train Fwaf -> test HttpParams",
+  "model": "Linear SVM",
+  "train_seconds": 73.7,
+  "tn": 15193,
+  "fp": 3643,
+  "fn": 342,
+  "tp": 11414,
+  "accuracy": 0.8697,
+  "precision": 0.7581,
+  "recall": 0.9709,
+  "f1": 0.8514
+ },
+ {
+  "experiment": "A: train Fwaf -> test HttpParams",
+  "model": "Logistic Regression",
+  "train_seconds": 34.6,
+  "tn": 17052,
+  "fp": 1784,
+  "fn": 625,
+  "tp": 11131,
+  "accuracy": 0.9213,
+  "precision": 0.8619,
+  "recall": 0.9468,
+  "f1": 0.9024
+ },
+ {
+  "experiment": "B: train HttpParams -> test Fwaf",
+  "model": "Factorization Machine (ours)",
+  "train_seconds": 74.1,
+  "tn": 1012416,
+  "fp": 236360,
+  "fn": 6767,
+  "tp": 20141,
+  "accuracy": 0.8094,
+  "precision": 0.0785,
+  "recall": 0.7485,
+  "f1": 0.1421
+ },
+ {
+  "experiment": "B: train HttpParams -> test Fwaf",
+  "model": "Linear SVM",
+  "train_seconds": 45.9,
+  "tn": 1194844,
+  "fp": 53932,
+  "fn": 13081,
+  "tp": 13827,
+  "accuracy": 0.9475,
+  "precision": 0.2041,
+  "recall": 0.5139,
+  "f1": 0.2921
+ },
+ {
+  "experiment": "B: train HttpParams -> test Fwaf",
+  "model": "Logistic Regression",
+  "train_seconds": 10.7,
+  "tn": 1225974,
+  "fp": 22802,
+  "fn": 14035,
+  "tp": 12873,
+  "accuracy": 0.9711,
+  "precision": 0.3608,
+  "recall": 0.4784,
+  "f1": 0.4114
+ }
+]

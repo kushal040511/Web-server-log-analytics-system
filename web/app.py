@@ -50,7 +50,8 @@ def inject():
         "meta": (d or {}).get("meta", {}),
         "generated_at": (d or {}).get("generated_at", ""),
         "nav": [("index", "Overview", "/"), ("traffic", "Traffic", "/traffic"),
-                ("errors", "Errors", "/errors"), ("performance", "Performance", "/performance")],
+                ("errors", "Errors", "/errors"), ("performance", "Performance", "/performance"),
+                ("ml", "Attack detection", "/ml")],
     }
 
 
@@ -99,7 +100,34 @@ def performance():
     return page("performance", "Performance", "Response weight and the heaviest clients")
 
 
+@app.route("/ml")
+def ml():
+    return page("ml", "Attack detection", "Machine learning: Factorization Machine vs 7 Spark MLlib models")
+
+
 # ---------------------------------------------------------------------- API
+ML_DIR = os.path.join(OUTPUT, "ml")
+
+
+def ml_file(name):
+    """Results written by jobs/ml_train.py and jobs/ml_crossdataset.py (make ml)."""
+    p = os.path.join(ML_DIR, name)
+    if not os.path.exists(p):
+        return jsonify({"error": "no ML results yet", "fix": "run: make ml"}), 404
+    with open(p) as f:
+        return Response(f.read(), mimetype="application/json")
+
+
+@app.route("/api/ml")
+def api_ml():
+    return ml_file("ml_results.json")
+
+
+@app.route("/api/ml/cross")
+def api_ml_cross():
+    return ml_file("ml_crossdataset.json")
+
+
 @app.route("/api/data")
 @app.route("/dashboard.json")
 def api_data():

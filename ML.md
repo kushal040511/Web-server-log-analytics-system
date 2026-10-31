@@ -16,6 +16,9 @@ make ml          # = ml-data + ml-ingest + ml-prep + ml-train   (about 20-30 min
 | `make ml-ingest` | copies them into HDFS: `/data/attacks` |
 | `make ml-prep` | `jobs/ml_preprocess.py`: clean, bias fix, de-duplicate, 80/20 split → `/data/attacks/prepared` |
 | `make ml-train` | `jobs/ml_train.py`: 8 models, confusion matrices, scores the NASA logs → `output/ml/ml_report.html` |
+| `make ml-cross` | `jobs/ml_crossdataset.py`: train on one dataset, test on the other (top 3 models) |
+
+Results appear on the website at http://localhost:8050/ml (Attack detection page).
 
 ## Data and preprocessing (`jobs/ml_preprocess.py`)
 
@@ -50,6 +53,21 @@ All 8 matrices: `docs/ml_results/confusion_matrices_all.png`.
 
 FM is within 0.002 F1 of the best model (Linear SVM) and ahead of Logistic Regression and
 all tree, probabilistic and neural models.
+
+## Across datasets (`jobs/ml_crossdataset.py`)
+
+| Experiment | Model | Precision | Recall | F1 |
+|---|---|---|---|---|
+| A: train Fwaf → test HttpParams | **Factorization Machine** | 0.9809 | 0.9657 | **0.9733** |
+| A: train Fwaf → test HttpParams | Logistic Regression | 0.8619 | 0.9468 | 0.9024 |
+| A: train Fwaf → test HttpParams | Linear SVM | 0.7581 | 0.9709 | 0.8514 |
+| B: train HttpParams → test Fwaf | Logistic Regression | 0.3608 | 0.4784 | 0.4114 |
+| B: train HttpParams → test Fwaf | Linear SVM | 0.2041 | 0.5139 | 0.2921 |
+| B: train HttpParams → test Fwaf | Factorization Machine | 0.0785 | 0.7485 | 0.1421 |
+
+Trained on the large Fwaf set, the FM transfers far better than the linear models (221 false alarms vs the
+SVM's 3,643). Trained only on the small HttpParams set, every model fails on Fwaf's URLs, the FM worst.
+A single mixed split would have picked the SVM; testing across datasets changes the ranking.
 
 ## On the NASA logs (case study, no labels)
 

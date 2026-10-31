@@ -16,7 +16,7 @@ reports, unusual-traffic alerts and web-attack detection. Demonstrated on the re
 | Store | **Hadoop HDFS** in Docker (1 NameNode, 2 DataNodes, replication 2) | Kriti | `docker/`, `docker-compose.yml`, `conf/` | 356 MB raw logs, every block stored twice |
 | Clean | **Apache Spark** (PySpark ETL) | Kushal | `jobs/etl.py` | 3,461,613 lines → 3,461,612 rows, 1 reject, 58 date folders of Parquet (41.5 MB) |
 | Analyse | **Spark SQL** | Gargi | `jobs/reports.py`, `jobs/anomalies.py`, `jobs/export_dashboard.py` | 11 reports; Z-score finds 12 unusual hours (13 July 1995, STS-70 launch) |
-| Detect attacks | **Spark MLlib** | Team | `jobs/ml_preprocess.py`, `jobs/ml_train.py` | Factorization Machine, F1 0.967, compared with 7 models (see [ML.md](ML.md)) |
+| Detect attacks | **Spark MLlib** | Team | `jobs/ml_preprocess.py`, `jobs/ml_train.py`, `jobs/ml_crossdataset.py` | Factorization Machine, F1 0.967, compared with 7 models (see [ML.md](ML.md)) |
 
 ## Run it
 
@@ -32,7 +32,7 @@ make ml            # attack data -> HDFS -> preprocessing -> 8 models -> output/
 
 | URL | What |
 |---|---|
-| http://localhost:8050 | Website |
+| http://localhost:8050 | Website (Overview, Traffic, Errors, Performance, Attack detection) |
 | http://localhost:9870 | HDFS NameNode |
 | http://localhost:8080 | Spark master |
 
@@ -58,6 +58,9 @@ in Google Colab and use Runtime → Run all.
 
 ![Confusion matrices](docs/ml_results/confusion_matrices_all.png)
 
+**Across datasets:** trained on Fwaf and tested on HttpParams, the Factorization Machine keeps F1 0.973,
+against 0.902 for Logistic Regression and 0.851 for Linear SVM. Details in [ML.md](ML.md).
+
 ## Team guides
 
 [KRITI.md](KRITI.md) (HDFS cluster) · [KUSHAL.md](KUSHAL.md) (Spark ETL) · [GARGI.md](GARGI.md) (Spark SQL + website) · [ML.md](ML.md) (machine learning)
@@ -72,7 +75,7 @@ docker/            Dockerfile + entrypoint.sh (one image, a role per container)
 docker-compose.yml the 7-container cluster
 conf/              core-site.xml, hdfs-site.xml, spark-defaults.conf
 jobs/              Spark jobs: etl, reports, anomalies, export_dashboard, ml_preprocess, ml_train
-web/               Flask website: Overview, Traffic (with Z-score anomalies), Errors, Performance
+web/               Flask website: Overview, Traffic (with Z-score anomalies), Errors, Performance, Attack detection
 scripts/           data download scripts
 notebooks/         Google Colab version of the pipeline
 docs/              figures and ML results

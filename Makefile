@@ -138,8 +138,11 @@ ml-prep:         ## ML preprocessing: clean, bias fix, de-duplicate, 80/20 split
 ml-train:        ## train FM + 7 models, confusion matrices, score the NASA logs (~30-40 min)
 	$(EXEC) spark-submit /workspace/jobs/ml_train.py
 	@echo
-	@echo "  Results: output/ml/ml_report.html (open in a browser) and output/ml/ml_results.json"
+	@echo "  Results: http://localhost:8050/ml  (also output/ml/ml_report.html)"
 
-ml: ml-data ml-ingest ml-prep ml-train  ## the whole ML stage
+ml-cross:        ## cross-dataset test: train on one dataset, test on the other (~10 min)
+	$(EXEC) spark-submit /workspace/jobs/ml_crossdataset.py
 
-.PHONY: ml-data ml-ingest ml-prep ml-train ml
+ml: ml-data ml-ingest ml-prep ml-train ml-cross  ## the whole ML stage; results on http://localhost:8050/ml
+
+.PHONY: ml-data ml-ingest ml-prep ml-train ml-cross ml
