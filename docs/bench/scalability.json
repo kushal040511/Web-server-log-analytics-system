@@ -1,0 +1,101 @@
+{
+ "machine": {
+  "cpus": 2,
+  "mode": "Spark local mode, one machine"
+ },
+ "note": "median of the runs; time includes Spark start-up (~5-8 s per job)",
+ "results": [
+  {
+   "fraction": 0.25,
+   "lines": 865403,
+   "size_mb": 88.1,
+   "cores": 1,
+   "etl_seconds": 34.7,
+   "reports_seconds": 26.1,
+   "total_seconds": 60.9,
+   "lines_per_second": 14220,
+   "runs": 2
+  },
+  {
+   "fraction": 0.25,
+   "lines": 865403,
+   "size_mb": 88.1,
+   "cores": 2,
+   "etl_seconds": 26.7,
+   "reports_seconds": 26.4,
+   "total_seconds": 53.1,
+   "lines_per_second": 16296,
+   "runs": 2,
+   "speedup_vs_1_core": 1.15
+  },
+  {
+   "fraction": 0.5,
+   "lines": 1730806,
+   "size_mb": 177.0,
+   "cores": 1,
+   "etl_seconds": 57.6,
+   "reports_seconds": 35.1,
+   "total_seconds": 92.6,
+   "lines_per_second": 18685,
+   "runs": 2
+  },
+  {
+   "fraction": 0.5,
+   "lines": 1730806,
+   "size_mb": 177.0,
+   "cores": 2,
+   "etl_seconds": 40.9,
+   "reports_seconds": 33.7,
+   "total_seconds": 74.6,
+   "lines_per_second": 23214,
+   "runs": 2,
+   "speedup_vs_1_core": 1.24
+  },
+  {
+   "fraction": 1.0,
+   "lines": 3461613,
+   "size_mb": 355.8,
+   "cores": 1,
+   "etl_seconds": 111.6,
+   "reports_seconds": 49.4,
+   "total_seconds": 161.0,
+   "lines_per_second": 21498,
+   "runs": 2
+  },
+  {
+   "fraction": 1.0,
+   "lines": 3461613,
+   "size_mb": 355.8,
+   "cores": 2,
+   "etl_seconds": 81.6,
+   "reports_seconds": 41.4,
+   "total_seconds": 123.0,
+   "lines_per_second": 28140,
+   "runs": 2,
+   "speedup_vs_1_core": 1.31
+  },
+  {
+   "fraction": 2.0,
+   "lines": 6923225,
+   "size_mb": 711.5,
+   "cores": 1,
+   "etl_seconds": 202.1,
+   "reports_seconds": 73.8,
+   "total_seconds": 275.9,
+   "lines_per_second": 25096,
+   "runs": 2
+  },
+  {
+   "fraction": 2.0,
+   "lines": 6923225,
+   "size_mb": 711.5,
+   "cores": 2,
+   "etl_seconds": 132.0,
+   "reports_seconds": 55.3,
+   "total_seconds": 187.3,
+   "lines_per_second": 36968,
+   "runs": 2,
+   "speedup_vs_1_core": 1.47
+  }
+ ]
+}

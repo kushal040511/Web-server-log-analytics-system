@@ -128,6 +128,16 @@ def api_ml_cross():
     return ml_file("ml_crossdataset.json")
 
 
+@app.route("/api/ml/robust")
+def api_ml_robust():
+    return ml_file("ml_robustness.json")
+
+
+@app.route("/api/ml/audit")
+def api_ml_audit():
+    return ml_file("nasa_flag_audit.json")
+
+
 @app.route("/api/data")
 @app.route("/dashboard.json")
 def api_data():

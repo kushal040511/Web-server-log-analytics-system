@@ -31,6 +31,13 @@
     <div id="tbl-models"></div>
   </div>
 
+  <div class="card c12" id="robust-card" hidden>
+    <h2>Is the result stable? 5 different random splits</h2>
+    <p class="note" id="robust-note"></p>
+    <div id="tbl-robust"></div>
+    <div id="tbl-mcnemar" style="margin-top:14px"></div>
+  </div>
+
   <div class="card c12" id="cross-card" hidden>
     <h2>Does it work on a different dataset?</h2>
     <p class="note">Trained on one labelled dataset, tested on the other. A large drop means the
@@ -41,7 +48,8 @@
   <div class="card c12" id="nasa-card" hidden>
     <h2>The Factorization Machine on the NASA logs</h2>
     <p class="note" id="nasa-note"></p>
-    <div id="tbl-nasa"></div>
+    <div id="tbl-audit"></div>
+    <div id="tbl-nasa" style="margin-top:14px"></div>
   </div>
 
   <div class="card c12">
@@ -66,7 +74,12 @@
 {% endblock %}
 {% block scripts %}
 <script>
-let ML = null, CROSS = null, ML_SEL = null;
+let ML = null, CROSS = null, ROBUST = null, AUDIT = null, ML_SEL = null;
+
+async function getJSON(url) {
+  try { const r = await fetch(url); return r.ok ? await r.json() : false; } catch { return false; }
+}
+const pm = (s, k) => `${s[k + "_mean"].toFixed(4)} ± ${s[k + "_std"].toFixed(4)}`;
 
 function drawMatrix(r) {
   ML_SEL = r.model;
@@ -144,8 +157,43 @@ boot(async function render() {
       { key: "model", label: "Model", render: v => esc(v) },
       { key: "precision", label: "Precision", num: true, render: v => v.toFixed(4) },
       { key: "recall", label: "Recall", num: true, render: v => v.toFixed(4) },
-      { key: "f1", label: "F1", num: true, render: v => `<b>${v.toFixed(4)}</b>` },
+      { key: "f1", label: "F1", num: true,
+        render: (v, r) => `<b>${v.toFixed(4)}</b>` + (r.runs > 1 ? ` ± ${r.f1_std.toFixed(4)}` : "") },
+      { key: "runs", label: "Seeds", num: true, render: v => v || 1 },
     ], { pageSize: 6, search: false });
+  }
+
+  if (ROBUST === null) ROBUST = await getJSON("/api/ml/robust");
+  if (ROBUST && (ROBUST.summary || []).length) {
+    $("#robust-card").hidden = false;
+    $("#robust-note").textContent = `The whole experiment repeated on ${ROBUST.seeds.length} random 80/20 splits `
+      + `(seeds ${ROBUST.seeds.join(", ")}) of the ${fmt.n(ROBUST.dataset)} prepared requests. Mean ± standard deviation. `
+      + `PR-AUC is the area under the precision-recall curve, the fair area metric when attacks are rare.`;
+    dataTable($("#tbl-robust"), ROBUST.summary, [
+      { key: "model", label: "Model", render: v => /ours/.test(v) ? `<b>${esc(v)}</b>` : esc(v) },
+      { key: "precision_mean", label: "Precision", num: true, render: (v, r) => pm(r, "precision") },
+      { key: "recall_mean", label: "Recall", num: true, render: (v, r) => pm(r, "recall") },
+      { key: "f1_mean", label: "F1", num: true, render: (v, r) => `<b>${pm(r, "f1")}</b>` },
+      { key: "roc_auc_mean", label: "ROC-AUC", num: true, render: (v, r) => pm(r, "roc_auc") },
+      { key: "pr_auc_mean", label: "PR-AUC", num: true, render: (v, r) => pm(r, "pr_auc") },
+    ], { sortKey: "f1_mean", pageSize: 5, search: false });
+    dataTable($("#tbl-mcnemar"), ROBUST.mcnemar, [
+      { key: "seed", label: "Split (seed)", num: true },
+      { key: "second", label: "FM compared with", render: v => esc(v) },
+      { key: "only_first_right", label: "Only FM right", num: true },
+      { key: "only_second_right", label: "Only the other right", num: true },
+      { key: "p_value", label: "McNemar p", num: true, render: v => v < 0.05 ? `<b>${v}</b>` : `${v}` },
+    ], { pageSize: 10, search: false });
+  }
+
+  if (AUDIT === null) AUDIT = await getJSON("/api/ml/audit");
+  if (AUDIT && (AUDIT.categories || []).length) {
+    dataTable($("#tbl-audit"), AUDIT.categories, [
+      { key: "category", label: "What the flagged URL really is (checked by hand)", render: v => esc(v) },
+      { key: "urls", label: "URLs", num: true },
+      { key: "requests", label: "Requests", num: true },
+      { key: "why", label: "Why the model flagged it", render: v => esc(v) },
+    ], { sortKey: "urls", pageSize: 6, search: false });
   }
 
   const n = ML.nasa;
@@ -153,7 +201,7 @@ boot(async function render() {
     $("#nasa-card").hidden = false;
     $("#nasa-note").textContent = `${fmt.n(n.urls_scored)} distinct NASA URLs scored; ${fmt.n(n.urls_flagged)} flagged as attack `
       + `(${fmt.n(n.requests_flagged)} requests). The NASA logs have no labels, so these are candidates to check by hand, `
-      + `not confirmed attacks: most turn out to be searches with words like "select" or "transcript".`;
+      + `not confirmed attacks.` + (AUDIT ? ` Checked by hand: ${AUDIT.with_attack_signature} of ${AUDIT.urls_flagged} contain a real attack signature.` : "");
     dataTable($("#tbl-nasa"), n.top_flagged || [], [
       { key: "endpoint", label: "URL", trunc: true, render: v => esc(v) },
       { key: "hits", label: "Requests", num: true },

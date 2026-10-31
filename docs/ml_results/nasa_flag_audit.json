@@ -1,0 +1,1377 @@
+{
+ "urls_scored": 31026,
+ "urls_flagged_total": 120,
+ "urls_flagged": 120,
+ "requests_flagged": 1754,
+ "with_attack_signature": 0,
+ "categories": [
+  {
+   "category": "search query",
+   "urls": 44,
+   "requests": 55,
+   "why": "free-text site search; words such as 'select', 'transcript' and apostrophes look like SQL to the model"
+  },
+  {
+   "category": "static page under /msfc/description/",
+   "urls": 35,
+   "requests": 933,
+   "why": "the path word 'de-SCRIPT-ion' shares character n-grams with '<script'"
+  },
+  {
+   "category": "malformed or mistyped request",
+   "urls": 21,
+   "requests": 38,
+   "why": "broken client requests: HTML fragments or another site's address pasted into the URL, binary noise, back-slashes"
+  },
+  {
+   "category": "other static page or file",
+   "urls": 11,
+   "requests": 708,
+   "why": "ordinary page or image; flagged by unusual characters or length"
+  },
+  {
+   "category": "CGI with parameters",
+   "urls": 9,
+   "requests": 20,
+   "why": "legitimate CGI programs with long key=value strings, '&' and '%3A'"
+  }
+ ],
+ "urls": [
+  {
+   "endpoint": "/msfc/description/description.html",
+   "hits": 113,
+   "hosts": 99,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 112,
+    "304": 1
+   }
+  },
+  {
+   "endpoint": "/msfc/description/ips-small.gif",
+   "hits": 102,
+   "hosts": 88,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 102
+   }
+  },
+  {
+   "endpoint": "/msfc/description/instruments/hut_logo_icon.gif",
+   "hits": 98,
+   "hosts": 86,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 98
+   }
+  },
+  {
+   "endpoint": "/msfc/description/colorbar.gif",
+   "hits": 97,
+   "hosts": 88,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 97
+   }
+  },
+  {
+   "endpoint": "/msfc/description/instruments/uitlogo_tiny.gif",
+   "hits": 96,
+   "hosts": 85,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 96
+   }
+  },
+  {
+   "endpoint": "/mdss/ped/acs/cmu.html",
+   "hits": 26,
+   "hosts": 13,
+   "p_attack": 1.0,
+   "category": "other static page or file",
+   "attack_signature": false,
+   "status": {
+    "200": 25,
+    "304": 1
+   }
+  },
+  {
+   "endpoint": "/msfc/description/starview.html",
+   "hits": 12,
+   "hosts": 12,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 12
+   }
+  },
+  {
+   "endpoint": "/msfc/description/spacelab/spacelab.html",
+   "hits": 11,
+   "hosts": 11,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 11
+   }
+  },
+  {
+   "endpoint": "/msfc/description/starview.gif",
+   "hits": 11,
+   "hosts": 11,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 11
+   }
+  },
+  {
+   "endpoint": "/msfc/description/instruments/imaging.html",
+   "hits": 9,
+   "hosts": 8,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 9
+   }
+  },
+  {
+   "endpoint": "/msfc/description/instruments/hut.html",
+   "hits": 9,
+   "hosts": 9,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 9
+   }
+  },
+  {
+   "endpoint": "/msfc/description/instruments/hut_logo_small.gif",
+   "hits": 8,
+   "hosts": 8,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 8
+   }
+  },
+  {
+   "endpoint": "/msfc/description/instruments/hut_line_bay-small.gif",
+   "hits": 8,
+   "hosts": 8,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 8
+   }
+  },
+  {
+   "endpoint": "/msfc/description/instruments/spiral_gallery.gif",
+   "hits": 7,
+   "hosts": 7,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 7
+   }
+  },
+  {
+   "endpoint": "/software/viewers/speak.exe",
+   "hits": 6,
+   "hosts": 6,
+   "p_attack": 1.0,
+   "category": "other static page or file",
+   "attack_signature": false,
+   "status": {
+    "200": 6
+   }
+  },
+  {
+   "endpoint": "/Harvest/cgi-bin/BrokerQuery.pl.cgi?query=oms&host=titan04.ksc.nasa.gov%3A8501&caseflag=on&wordflag=on&errorflag=0&opaqueflag=on&descflag=on&verbose=on&maxresultflag=50",
+   "hits": 6,
+   "hosts": 2,
+   "p_attack": 1.0,
+   "category": "CGI with parameters",
+   "attack_signature": false,
+   "status": {
+    "404": 2,
+    "500": 4
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?transcripts",
+   "hits": 5,
+   "hosts": 4,
+   "p_attack": 1.0,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 5
+   }
+  },
+  {
+   "endpoint": "/msfc/description/instruments/hut_line-small.gif",
+   "hits": 4,
+   "hosts": 4,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 4
+   }
+  },
+  {
+   "endpoint": "/msfc/description/instruments/uit.html",
+   "hits": 4,
+   "hosts": 4,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 4
+   }
+  },
+  {
+   "endpoint": "/msfc/description/instruments/wuppe.html",
+   "hits": 4,
+   "hosts": 4,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 4
+   }
+  },
+  {
+   "endpoint": "/msfc/description/instruments/uit_line_bay-small.gif",
+   "hits": 3,
+   "hosts": 3,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 3
+   }
+  },
+  {
+   "endpoint": "/msfc/description/instruments/wuppe-logo.gif",
+   "hits": 3,
+   "hosts": 3,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 3
+   }
+  },
+  {
+   "endpoint": "/elv/new01.gif>%20<li><a%20href=",
+   "hits": 3,
+   "hosts": 3,
+   "p_attack": 1.0,
+   "category": "malformed or mistyped request",
+   "attack_signature": false,
+   "status": {
+    "404": 3
+   }
+  },
+  {
+   "endpoint": "/msfc/description/instruments/uitlogo.gif",
+   "hits": 3,
+   "hosts": 3,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 3
+   }
+  },
+  {
+   "endpoint": "/cgi-bin/BrokerQuery.pl?query=oms&host=titan04.ksc.nasa.gov%3A8501&caseflag=on&wordflag=on&errorflag=0&opaqueflag=on&descflag=on&verbose=on&maxresultflag=50",
+   "hits": 3,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "CGI with parameters",
+   "attack_signature": false,
+   "status": {
+    "500": 3
+   }
+  },
+  {
+   "endpoint": "/msfc/description/instruments/wuppe_line_bay-small.gif",
+   "hits": 3,
+   "hosts": 3,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 3
+   }
+  },
+  {
+   "endpoint": "/Harvest/cgi-bin/HarvestGather.cgi?host=titan04.ksc.nasa.gov&port=8500&timestamp=0&flag=",
+   "hits": 3,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "CGI with parameters",
+   "attack_signature": false,
+   "status": {
+    "200": 3
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?spoczip.exe",
+   "hits": 2,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 2
+   }
+  },
+  {
+   "endpoint": "/~downs/cgi-bin/BrokerQuery.pl.cgi?query=oms&host=titan04.ksc.nasa.gov%3A8501&caseflag=on&wordflag=on&errorflag=0&opaqueflag=on&descflag=on&verbose=on&maxresultflag=50",
+   "hits": 2,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "CGI with parameters",
+   "attack_signature": false,
+   "status": {
+    "200": 2
+   }
+  },
+  {
+   "endpoint": "/msfc/description/instruments/polarimetry.html",
+   "hits": 2,
+   "hosts": 2,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 2
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?winvn.exe",
+   "hits": 2,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 2
+   }
+  },
+  {
+   "endpoint": "/msfc/description/instruments/spectroscopy.html",
+   "hits": 2,
+   "hosts": 2,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 2
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?TRANSCRIPT",
+   "hits": 2,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 2
+   }
+  },
+  {
+   "endpoint": "&\ufffdG\u0018\u0001",
+   "hits": 2,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "malformed or mistyped request",
+   "attack_signature": false,
+   "status": {
+    "400": 2
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?challanger+transcripts",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/elv/elvpage.htm/\"MISSION\"",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "malformed or mistyped request",
+   "attack_signature": false,
+   "status": {
+    "403": 1
+   }
+  },
+  {
+   "endpoint": "/software/winvn/winvn.html>WinVN</a>,",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "malformed or mistyped request",
+   "attack_signature": false,
+   "status": {
+    "404": 1
+   }
+  },
+  {
+   "endpoint": "/cgi-bin/BrokerQuery.pl?query=oms%04%06%06&host=titan04.ksc.nasa.gov%3A8501&caseflag=on&wordflag=on&errorflag=0&opaqueflag=on&descflag=on&verbose=on&maxresultflag=50",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "CGI with parameters",
+   "attack_signature": false,
+   "status": {
+    "500": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?challenger+transcripts",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/shuttle/missions/sts-67/images/k95p0391.gif></a>",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "malformed or mistyped request",
+   "attack_signature": false,
+   "status": {
+    "404": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?video+and+.avi",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?%22new+mission+control+center%22",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/~downs/harvest-1.2/cgi-bin/BrokerQuery.pl?query=oms&host=titan04.ksc.nasa.gov%3A8501&caseflag=on&wordflag=on&errorflag=0&opaqueflag=on&descflag=on&verbose=on&maxresultflag=50",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "CGI with parameters",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/msfc/description/instruments/spectrum-tiny.gif",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/history/a[p;;p/apollo.html",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "malformed or mistyped request",
+   "attack_signature": false,
+   "status": {
+    "404": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?ASTRONAUT+AND+SELECTION+AND+SHUTTLE",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/msfc/description/tiny_moose.gif",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/facts/http:www.disney.com",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "malformed or mistyped request",
+   "attack_signature": false,
+   "status": {
+    "404": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?today%27s+and+landing",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?APOLLO%2013%20TRANSCRIPT",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/history/apo;;o/apollo-13/apollo-13.html",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "malformed or mistyped request",
+   "attack_signature": false,
+   "status": {
+    "404": 1
+   }
+  },
+  {
+   "endpoint": "/msfc/description/instruments/uit_line_small.gif",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/~downs/harvest-1.2/cgi-bin/BrokerQuery.pl.cgi?query=oms&host=titan04.ksc.nasa.gov%3A8501&caseflag=on&wordflag=on&errorflag=0&opaqueflag=on&descflag=on&verbose=on&maxresultflag=50",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "CGI with parameters",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?IPR%27s+and+PR%27s",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?pictures+of+Jupiter%27s+outer+satellites",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?discovrey%27s+launch",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?%22STS+71%22+and+%22flight+path%22",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/L\ufffd\u0018\ufffd\ufffd\ufffdN^NuNV",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "malformed or mistyped request",
+   "attack_signature": false,
+   "status": {
+    "404": 1
+   }
+  },
+  {
+   "endpoint": "/msfc/description/transmit-small.gif",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/msfc/description/ips/ips.html",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?discovrey%27s+pithers",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 1.0,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/msfc/description/instruments/uit-tech.html",
+   "hits": 2,
+   "hosts": 2,
+   "p_attack": 0.999,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 2
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?100+and+U.S.+and+Human+and+Space+and+Flight",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.999,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?*.mov+or+*.avi",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.999,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/http//www.cs.tut.fi/~p116711/http//www.cs.tut.fi/~p116711/http//www.cs.tut.fi/~p116711/http//www.cs.tut.fi/~p116711",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.999,
+   "category": "malformed or mistyped request",
+   "attack_signature": false,
+   "status": {
+    "404": 1
+   }
+  },
+  {
+   "endpoint": "/c:/trn/trn.hml",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.999,
+   "category": "malformed or mistyped request",
+   "attack_signature": false,
+   "status": {
+    "404": 1
+   }
+  },
+  {
+   "endpoint": "/shuttle/missions/sts-71/images/file:C|/HTTPD/HTDOCS/IMAGES/WEEYE.GIF",
+   "hits": 2,
+   "hosts": 1,
+   "p_attack": 0.998,
+   "category": "malformed or mistyped request",
+   "attack_signature": false,
+   "status": {
+    "404": 2
+   }
+  },
+  {
+   "endpoint": "/msfc/description/instruments/hut-tech.html",
+   "hits": 5,
+   "hosts": 5,
+   "p_attack": 0.997,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 5
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?sts-69--wsf-2+%26+spartan+201-03",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.997,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/shuttle/missions/\\\\www.cinday-cga.com:p09\\",
+   "hits": 2,
+   "hosts": 1,
+   "p_attack": 0.996,
+   "category": "malformed or mistyped request",
+   "attack_signature": false,
+   "status": {
+    "404": 2
+   }
+  },
+  {
+   "endpoint": "/techreports.ksc.nasa.gov/techreports.ksc.nasa.gov/ktrs_hom.htm",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.996,
+   "category": "malformed or mistyped request",
+   "attack_signature": false,
+   "status": {
+    "404": 1
+   }
+  },
+  {
+   "endpoint": "/msfc/description/launch-small.gif",
+   "hits": 101,
+   "hosts": 90,
+   "p_attack": 0.995,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 101
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?public+tours+with+space+center",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.994,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?(kempler%20elements)%20and%20(sts70)",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.993,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?%22mobile+air+traffic%22",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.992,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?logo+lockheed+.gif",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.99,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/msfc/description/ultraviolet.html",
+   "hits": 2,
+   "hosts": 2,
+   "p_attack": 0.989,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 2
+   }
+  },
+  {
+   "endpoint": "/shuttle/missions/sts-67/sts-67-day-03-highlights.html",
+   "hits": 26,
+   "hosts": 23,
+   "p_attack": 0.988,
+   "category": "other static page or file",
+   "attack_signature": false,
+   "status": {
+    "200": 24,
+    "304": 2
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?SELECT+AND+TV",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.987,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/msfc/description/instruments/wuppe-button.gif",
+   "hits": 94,
+   "hosts": 84,
+   "p_attack": 0.986,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 94
+   }
+  },
+  {
+   "endpoint": "/shuttle/missions/sts-67/sts-67-day-13-highlights.html",
+   "hits": 21,
+   "hosts": 17,
+   "p_attack": 0.985,
+   "category": "other static page or file",
+   "attack_signature": false,
+   "status": {
+    "200": 19,
+    "304": 2
+   }
+  },
+  {
+   "endpoint": "/msfc/description/instruments/uoregon.GIF",
+   "hits": 97,
+   "hosts": 84,
+   "p_attack": 0.981,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 97
+   }
+  },
+  {
+   "endpoint": "/history/apollo\\apollo.html",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.975,
+   "category": "malformed or mistyped request",
+   "attack_signature": false,
+   "status": {
+    "404": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?september%20'95%20launch%20schedule",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.968,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?nasa+select+tv",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.964,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/www.ygu.ac.jp",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.964,
+   "category": "malformed or mistyped request",
+   "attack_signature": false,
+   "status": {
+    "404": 1
+   }
+  },
+  {
+   "endpoint": "/bin/search?p=uri+gregarin",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.96,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "404": 1
+   }
+  },
+  {
+   "endpoint": "/shuttle/missions/sts-69/movies/movies.htmlhttp://www.fys.ruu.nl",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.954,
+   "category": "malformed or mistyped request",
+   "attack_signature": false,
+   "status": {
+    "404": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?NASA+AND+SELECT",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.953,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/msfc/description/shuttle/endeavour.html",
+   "hits": 17,
+   "hosts": 16,
+   "p_attack": 0.938,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 17
+   }
+  },
+  {
+   "endpoint": "/persons/astronauts/q-to-t/TrulyRH.txt",
+   "hits": 73,
+   "hosts": 51,
+   "p_attack": 0.93,
+   "category": "other static page or file",
+   "attack_signature": false,
+   "status": {
+    "404": 73
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?sr%26qa",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.92,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?ASTRONAUT+AND+SELECTION",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.915,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?KSC+and+95EC+and+0752",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.91,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/icons/DocsRightArrowSmall.gif",
+   "hits": 22,
+   "hosts": 2,
+   "p_attack": 0.9,
+   "category": "other static page or file",
+   "attack_signature": false,
+   "status": {
+    "404": 22
+   }
+  },
+  {
+   "endpoint": "/`",
+   "hits": 13,
+   "hosts": 12,
+   "p_attack": 0.892,
+   "category": "malformed or mistyped request",
+   "attack_signature": false,
+   "status": {
+    "200": 13
+   }
+  },
+  {
+   "endpoint": "/insert-name.html",
+   "hits": 3,
+   "hosts": 2,
+   "p_attack": 0.888,
+   "category": "other static page or file",
+   "attack_signature": false,
+   "status": {
+    "404": 3
+   }
+  },
+  {
+   "endpoint": "/bin/search?p=uri+greg",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.882,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "404": 1
+   }
+  },
+  {
+   "endpoint": "/software/winvn/userguide/docsrigh.gif",
+   "hits": 524,
+   "hosts": 457,
+   "p_attack": 0.877,
+   "category": "other static page or file",
+   "attack_signature": false,
+   "status": {
+    "200": 465,
+    "304": 59
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?%22satellite+images%22",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.867,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?challenger+and+crew+and+transcripts",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.839,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/.../liftoff.html",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.822,
+   "category": "malformed or mistyped request",
+   "attack_signature": false,
+   "status": {
+    "404": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?challenger+transcript",
+   "hits": 2,
+   "hosts": 2,
+   "p_attack": 0.808,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 2
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?total%2Bsquare%2Bfeet",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.805,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/shuttle/technology\\images",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.777,
+   "category": "malformed or mistyped request",
+   "attack_signature": false,
+   "status": {
+    "404": 1
+   }
+  },
+  {
+   "endpoint": "/.../stsref-toc.html",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.754,
+   "category": "malformed or mistyped request",
+   "attack_signature": false,
+   "status": {
+    "404": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?jan.+28%2C1986+flight+recorder",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.698,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?B%26K",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.688,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/payloads/processing/vpart3s.gif",
+   "hits": 5,
+   "hosts": 2,
+   "p_attack": 0.671,
+   "category": "other static page or file",
+   "attack_signature": false,
+   "status": {
+    "200": 3,
+    "304": 2
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?select",
+   "hits": 2,
+   "hosts": 2,
+   "p_attack": 0.651,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 2
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?SELECT+",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.651,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/shuttle/technology/sts-newsref/spacelab.html#spacelab-pallet-ecs",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.631,
+   "category": "other static page or file",
+   "attack_signature": false,
+   "status": {
+    "404": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?nasa+select",
+   "hits": 3,
+   "hosts": 3,
+   "p_attack": 0.615,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 3
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?%22Todd+Corey%22",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.567,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?%7Fpayload",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.567,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/msfc/description/ips/astro-osp-little.gif",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.567,
+   "category": "static page under /msfc/description/",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/cgi-bin/imagemap/fr?294,180",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.527,
+   "category": "CGI with parameters",
+   "attack_signature": false,
+   "status": {
+    "302": 1
+   }
+  },
+  {
+   "endpoint": "/htbin/wais.pl?access%2Bconstruction",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.517,
+   "category": "search query",
+   "attack_signature": false,
+   "status": {
+    "200": 1
+   }
+  },
+  {
+   "endpoint": "/Tools/Icons/Help/hw.embossed.grey.gif",
+   "hits": 1,
+   "hosts": 1,
+   "p_attack": 0.512,
+   "category": "other static page or file",
+   "attack_signature": false,
+   "status": {
+    "404": 1
+   }
+  },
+  {
+   "endpoint": "/cgi-bin/imagemap/countdown?94,182",
+   "hits": 2,
+   "hosts": 2,
+   "p_attack": 0.504,
+   "category": "CGI with parameters",
+   "attack_signature": false,
+   "status": {
+    "302": 2
+   }
+  }
+ ],
+ "status_codes": {
+  "200": 1547,
+  "304": 67,
+  "404": 126,
+  "500": 8,
+  "400": 2,
+  "403": 1,
+  "302": 3
+ }
+}

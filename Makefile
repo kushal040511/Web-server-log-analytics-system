@@ -143,6 +143,25 @@ ml-train:        ## train FM + 7 models, confusion matrices, score the NASA logs
 ml-cross:        ## cross-dataset test: train on one dataset, test on the other (~10 min)
 	$(EXEC) spark-submit /workspace/jobs/ml_crossdataset.py
 
-ml: ml-data ml-ingest ml-prep ml-train ml-cross  ## the whole ML stage; results on http://localhost:8050/ml
+ml-tune:         ## check the model settings on a validation split carved from the training set (~15 min)
+	$(EXEC) spark-submit /workspace/jobs/ml_tune.py
 
-.PHONY: ml-data ml-ingest ml-prep ml-train ml-cross ml
+ml-robust:       ## repeat the top 3 models on 5 random splits: mean ± std, ROC/PR-AUC, McNemar (~25 min)
+	$(EXEC) spark-submit /workspace/jobs/ml_robustness.py
+
+ml-audit:        ## sort the NASA URLs the model flags into hand-checked categories
+	python3 scripts/audit_nasa_flags.py output/ml/ml_results.json
+
+ml: ml-data ml-ingest ml-prep ml-tune ml-train ml-cross ml-robust ml-audit  ## the whole ML stage; results on http://localhost:8050/ml
+
+.PHONY: ml-data ml-ingest ml-prep ml-tune ml-train ml-cross ml-robust ml-audit ml
+
+## ---------------------------------------------------------------- quality
+
+test:            ## run the test suite without Docker (pip install -r requirements-dev.txt; needs Java 11)
+	python3 -m pytest -v
+
+bench:           ## scalability benchmark of the ETL and reports on 25-200% of the logs (~30 min, no Docker)
+	python3 scripts/bench_scalability.py data output/bench
+
+.PHONY: test bench

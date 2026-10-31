@@ -1,0 +1,135 @@
+{
+ "fit": 122910,
+ "validation": 30937,
+ "grid": [
+  {
+   "model": "Factorization Machine (ours)",
+   "params": {
+    "factorSize": 4,
+    "stepSize": 0.05
+   },
+   "val_f1": 0.9836,
+   "train_seconds": 56.3
+  },
+  {
+   "model": "Factorization Machine (ours)",
+   "params": {
+    "factorSize": 4,
+    "stepSize": 0.2
+   },
+   "val_f1": 0.9861,
+   "train_seconds": 52.0
+  },
+  {
+   "model": "Factorization Machine (ours)",
+   "params": {
+    "factorSize": 8,
+    "stepSize": 0.05
+   },
+   "val_f1": 0.986,
+   "train_seconds": 83.7
+  },
+  {
+   "model": "Factorization Machine (ours)",
+   "params": {
+    "factorSize": 8,
+    "stepSize": 0.2
+   },
+   "val_f1": 0.9882,
+   "train_seconds": 81.6
+  },
+  {
+   "model": "Factorization Machine (ours)",
+   "params": {
+    "factorSize": 16,
+    "stepSize": 0.05
+   },
+   "val_f1": 0.9865,
+   "train_seconds": 144.9
+  },
+  {
+   "model": "Factorization Machine (ours)",
+   "params": {
+    "factorSize": 16,
+    "stepSize": 0.2
+   },
+   "val_f1": 0.9849,
+   "train_seconds": 146.0
+  },
+  {
+   "model": "Linear SVM",
+   "params": {
+    "regParam": 1e-05
+   },
+   "val_f1": 0.9922,
+   "train_seconds": 11.3
+  },
+  {
+   "model": "Linear SVM",
+   "params": {
+    "regParam": 0.0001
+   },
+   "val_f1": 0.9923,
+   "train_seconds": 9.3
+  },
+  {
+   "model": "Linear SVM",
+   "params": {
+    "regParam": 0.001
+   },
+   "val_f1": 0.9911,
+   "train_seconds": 7.8
+  },
+  {
+   "model": "Logistic Regression",
+   "params": {
+    "regParam": 1e-05
+   },
+   "val_f1": 0.9869,
+   "train_seconds": 5.8
+  },
+  {
+   "model": "Logistic Regression",
+   "params": {
+    "regParam": 0.0001
+   },
+   "val_f1": 0.989,
+   "train_seconds": 4.5
+  },
+  {
+   "model": "Logistic Regression",
+   "params": {
+    "regParam": 0.001
+   },
+   "val_f1": 0.9879,
+   "train_seconds": 4.7
+  }
+ ],
+ "best": {
+  "Factorization Machine (ours)": {
+   "model": "Factorization Machine (ours)",
+   "params": {
+    "factorSize": 8,
+    "stepSize": 0.2
+   },
+   "val_f1": 0.9882,
+   "train_seconds": 81.6
+  },
+  "Linear SVM": {
+   "model": "Linear SVM",
+   "params": {
+    "regParam": 0.0001
+   },
+   "val_f1": 0.9923,
+   "train_seconds": 9.3
+  },
+  "Logistic Regression": {
+   "model": "Logistic Regression",
+   "params": {
+    "regParam": 0.0001
+   },
+   "val_f1": 0.989,
+   "train_seconds": 4.5
+  }
+ }
+}

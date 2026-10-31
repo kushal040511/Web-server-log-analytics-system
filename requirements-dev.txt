@@ -1,0 +1,8 @@
+# Run the test suite without Docker:  pip install -r requirements-dev.txt && pytest
+# (Java 11 must be installed; the tests start Spark in local mode)
+pyspark==3.5.3
+numpy==1.26.4
+pandas==2.2.3
+pyarrow==17.0.0
+flask==3.0.3
+pytest==8.3.3

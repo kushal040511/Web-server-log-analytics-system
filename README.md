@@ -43,6 +43,19 @@ in Google Colab and use Runtime → Run all.
 
 **Preprocessing:** raw text → 11 typed columns (`docs/preprocessing_*.png`).
 
+**Scalability** (`make bench`; ETL + 11 reports, Spark local mode on one 2-core machine, median of 2 runs):
+
+| Data | Lines | 1 core | 2 cores | Speed-up | Throughput (2 cores) |
+|---|---|---|---|---|---|
+| 25% | 865,403 | 60.9 s | 53.1 s | 1.15× | 16,296 lines/s |
+| 50% | 1,730,806 | 92.6 s | 74.6 s | 1.24× | 23,214 lines/s |
+| 100% | 3,461,613 | 161.0 s | 123.0 s | 1.31× | 28,140 lines/s |
+| 200% | 6,923,225 | 275.9 s | 187.3 s | 1.47× | 36,968 lines/s |
+
+Doubling the data adds well under double the time, because Spark's fixed start-up cost (~5–8 s per job) is
+spread over more lines, and a second core helps more as the data grows. A multi-node test on the Docker
+cluster at 5× and 10× is future work.
+
 **Machine learning** (test set of 261,076 labelled requests):
 
 | Model | Precision | Recall | F1 |
@@ -58,8 +71,32 @@ in Google Colab and use Runtime → Run all.
 
 ![Confusion matrices](docs/ml_results/confusion_matrices_all.png)
 
-**Across datasets:** trained on Fwaf and tested on HttpParams, the Factorization Machine keeps F1 0.973,
-against 0.902 for Logistic Regression and 0.851 for Linear SVM. Details in [ML.md](ML.md).
+**Stability (5 random splits, mean ± std F1):** Linear SVM 0.9699 ± 0.0011, Logistic Regression
+0.9663 ± 0.0009, Factorization Machine 0.9611 ± 0.0062. Inside one dataset the SVM is significantly better
+(McNemar p < 0.05 on 4 of 5 splits).
+
+**Across datasets (5 seeds):** trained on Fwaf and tested on HttpParams, the Factorization Machine keeps
+F1 0.968 ± 0.008, against 0.897 for Logistic Regression and 0.848 for Linear SVM, with 6–14× fewer false
+alarms. That is why the FM is the deployed model. Settings were chosen on a validation split, never the
+test set. Details in [ML.md](ML.md).
+
+**NASA logs:** the FM flags 120 of 31,026 URLs (1,754 requests, 0.05%). Checked by hand, none is an attack
+(searches for "select", pages under /msfc/de**script**ion/, malformed requests); see ML.md.
+
+## Tests
+
+```bash
+pip install -r requirements-dev.txt   # needs Java 11
+make test                             # = pytest
+```
+
+The tests run every Spark job unchanged (ETL, 11 reports, Z-score, export, ML preprocessing, tuning,
+training, cross-dataset, robustness) in Spark local mode on a small sample with known answers: exact parse
+of hand-written log lines, the one malformed line kept as a reject, report totals that add up, an injected
+traffic burst that the Z-score must find, no request in both train and test, valid confusion matrices,
+and every website page and API. GitHub Actions runs them on every push (`.github/workflows/tests.yml`).
+
+`make bench` measures how the ETL and reports scale with data size and CPU cores (see Results).
 
 ## Team guides
 
@@ -74,9 +111,12 @@ To run only the website (no Docker): `pip install -r requirements-gargi.txt`, th
 docker/            Dockerfile + entrypoint.sh (one image, a role per container)
 docker-compose.yml the 7-container cluster
 conf/              core-site.xml, hdfs-site.xml, spark-defaults.conf
-jobs/              Spark jobs: etl, reports, anomalies, export_dashboard, ml_preprocess, ml_train
+jobs/              Spark jobs: etl, reports, anomalies, export_dashboard,
+                   ml_preprocess, ml_tune, ml_train, ml_crossdataset, ml_robustness
 web/               Flask website: Overview, Traffic (with Z-score anomalies), Errors, Performance, Attack detection
-scripts/           data download scripts
+scripts/           data download, NASA flag audit, scalability benchmark
+tests/             end-to-end tests (pytest) + small fixtures
+.github/workflows/ CI: runs the tests on every push
 notebooks/         Google Colab version of the pipeline
 docs/              figures and ML results
 data/, output/     created locally, not in git
