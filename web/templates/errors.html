@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="rangebar" id="rangebar"></div>
+<div class="kpis" id="kpis"></div>
+
+<div class="grid">
+  <div class="card c7">
+    <h2>404 error rate over time</h2>
+    <p class="note">Every spike is a broken link somebody is still following. Select a day for its
+       detail, or drag across the chart to narrow the date range.</p>
+    <div id="ch-404rate"></div>
+  </div>
+
+  <div class="card c5">
+    <h2>HTTP status codes</h2>
+    <p class="note">What the server actually answered, in the selected range. Select a code for its daily trend.</p>
+    <div id="ch-status"></div>
+  </div>
+
+  <div class="card c12">
+    <div class="card-head" style="flex-wrap:wrap">
+      <div style="flex:1 1 320px"><h2>Broken links, ranked</h2>
+        <p class="note" id="tbl-note">Fix from the top. Search by path, sort by either column.</p></div>
+    </div>
+    <div id="tbl-404"></div>
+  </div>
+
+  <div class="card c12">
+    <div class="callout" id="insight"></div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+
+function errorsBrush(a, b) {
+  const prevFrom = Store.from, prevTo = Store.to;
+  let f = a.date, t = b.date;
+  if (f > t) [f, t] = [t, f];
+  Store.setRange(f, t);
+  toast(`Showing ${fmt.date(f)} to ${fmt.date(t)}`, {
+    action: { label: "Undo", onClick: () => Store.setRange(prevFrom, prevTo) },
+  });
+}
+
+boot(function render() {
+  const d = Store.data;
+  const errs = Store.errors();
+  const st = Store.byStatus();
+
+  const not404 = errs.reduce((a, r) => a + (r.not_found || 0), 0);
+  const totalReq = errs.reduce((a, r) => a + (r.total || 0), 0);
+  const s5 = st.filter(r => r.status >= 500).reduce((a, r) => a + r.hits, 0);
+  const worst = errs.reduce((a, r) => (!a || +r.pct_404 > +a.pct_404) ? r : a, null);
+
+  kpiRow($("#kpis"), [
+    [fmt.n(not404), "requests returned 404"],
+    [totalReq ? fmt.pct(100 * not404 / totalReq) : "—", "of all requests in range"],
+    [fmt.n(s5), "server errors (5xx)"],
+    [worst ? fmt.pct(+worst.pct_404) : "—", worst ? `worst day, ${fmt.date(worst.date)}` : "worst day"],
+    // The true distinct count, not the length of the capped table — that would
+    // just report the LIMIT back as if it were a finding.
+    [fmt.n(d.meta.not_found_urls), "distinct broken URLs" + (Store.isFullRange ? "" : " (all dates)")],
+  ]);
+
+  const mean = errs.length ? errs.reduce((a, r) => a + +r.pct_404, 0) / errs.length : 0;
+  lineChart($("#ch-404rate"), errs, {
+    height: 236, color: cssv("--critical"), y: r => +r.pct_404,
+    xLabel: r => fmt.date(r.date), dateKey: r => r.date,
+    mean, meanLabel: `mean ${mean.toFixed(2)}%`, fy: v => v.toFixed(2) + "%",
+    tip: r => `<b>${(+r.pct_404).toFixed(2)}%</b> of requests<br>`
+            + `${fmt.n(r.not_found)} of ${fmt.n(r.total)}<br>${fmt.dateLong(r.date)}`,
+    onClick: r => Detail.open("day", r.date),
+    onBrush: errorsBrush,
+  });
+
+  const col = { 200: cssv("--series-3"), 304: cssv("--series-1"), 302: cssv("--series-1-soft"),
+                404: cssv("--critical") };
+  hbarChart($("#ch-status"), st.slice(0, 7), {
+    labelW: 62, valW: 165, rowH: 30, x: r => r.hits,
+    label: r => String(r.status), color: r => col[r.status] || cssv("--text-muted"),
+    valueLabel: r => `${fmt.n(r.hits)}  (${(+r.pct).toFixed(2)}%)`,
+    tip: r => `<b>${fmt.n(r.hits)}</b> responses<br>${(+r.pct).toFixed(3)}% of requests in range`,
+    aria: r => `Status ${r.status}: ${fmt.n(r.hits)} responses, ${(+r.pct).toFixed(2)}%. Open status detail`,
+    onClick: r => Detail.open("status", r.status),
+  });
+
+  const rows404 = d.broken_links || [];
+  const urls404 = d.meta.not_found_urls || rows404.length;
+  // Say plainly when the table is a top-N of a longer tail, rather than letting
+  // "300 rows" pass for the whole list.
+  $("#tbl-note").textContent = urls404 > rows404.length
+    ? `The ${fmt.n(rows404.length)} worst of ${fmt.n(urls404)} distinct broken URLs, across all `
+      + `dates. Select a row for detail, search by path, or sort by any column.`
+    : "Fix from the top. Select a row for detail, search by path, or sort by any column.";
+
+  // Paths are arbitrary client bytes: escape before they reach the table's innerHTML.
+  dataTable($("#tbl-404"), rows404, [
+    { key: "endpoint", label: "Endpoint", trunc: true, render: v => esc(v) },
+    { key: "hits", label: "404s", num: true },
+    { key: "distinct_visitors", label: "Distinct visitors", num: true },
+  ], { sortKey: "hits", barKey: "hits", pageSize: 15,
+       placeholder: "Search broken paths…", downloads: "broken_links",
+       onRowClick: r => Detail.open("endpoint", r.endpoint) });
+
+  // Concentration is measured against every 404 in the logs, not just the ones
+  // that survived the table's cap — otherwise the share is inflated.
+  const top2 = rows404.slice(0, 2);
+  const share = top2.reduce((a, r) => a + r.hits, 0);
+  const all404 = d.meta.not_found_total || 0;
+  $("#insight").innerHTML = all404 && top2.length
+    ? `<b>Concentration is the useful part.</b> ${fmt.n(all404)} failed requests are spread across
+       ${fmt.n(urls404)} distinct URLs, but the top two,
+       <code class="mono">${top2.map(r => esc(r.endpoint)).join('</code> and <code class="mono">')}</code>,
+       account for <b>${(100 * share / all404).toFixed(0)}%</b> of them. Error work is almost always
+       like this: a long tail nobody can fix, and two or three items that pay for the whole exercise.
+       ${Store.isFullRange ? "" : "<em>These figures cover every date — the broken-links report is "
+         + "not broken down by day.</em>"}`
+    : `No 404s recorded in the selected range.`;
+});
+</script>
+{% endblock %}

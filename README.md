@@ -36,7 +36,7 @@ make ml            # attack data -> HDFS -> preprocessing -> 8 models -> output/
 | http://localhost:9870 | HDFS NameNode |
 | http://localhost:8080 | Spark master |
 
-Run `make` on its own to list every target. No Docker? Open `notebooks/LogAnalytics_Colab.ipynb`
+Run `make` on its own to list every target. On a Mac, double-click `run_pipeline.command` to build, start and run everything. No Docker? Open `notebooks/LogAnalytics_Colab.ipynb`
 in Google Colab and use Runtime → Run all.
 
 ## Results
@@ -58,6 +58,13 @@ in Google Colab and use Runtime → Run all.
 
 ![Confusion matrices](docs/ml_results/confusion_matrices_all.png)
 
+## Team guides
+
+[KRITI.md](KRITI.md) (HDFS cluster) · [KUSHAL.md](KUSHAL.md) (Spark ETL) · [GARGI.md](GARGI.md) (Spark SQL + website) · [ML.md](ML.md) (machine learning)
+
+To run only the website (no Docker): `pip install -r requirements-gargi.txt`, then
+`cd web && OUTPUT_DIR=../output python app.py` after the pipeline has filled `output/`.
+
 ## Layout
 
 ```
@@ -65,10 +72,9 @@ docker/            Dockerfile + entrypoint.sh (one image, a role per container)
 docker-compose.yml the 7-container cluster
 conf/              core-site.xml, hdfs-site.xml, spark-defaults.conf
 jobs/              Spark jobs: etl, reports, anomalies, export_dashboard, ml_preprocess, ml_train
+web/               Flask website: Overview, Traffic (with Z-score anomalies), Errors, Performance
 scripts/           data download scripts
 notebooks/         Google Colab version of the pipeline
 docs/              figures and ML results
 data/, output/     created locally, not in git
 ```
-
-> The website (`web/`) is not in this commit yet; it will be added from the team's project folder.

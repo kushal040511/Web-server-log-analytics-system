@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="rangebar" id="rangebar"></div>
+
+<div class="grid">
+  <div class="card c7">
+    <h2>Traffic by hour of day</h2>
+    <p class="note">Server local time. Recomputed for the selected range — the peak-to-trough
+       swing is what capacity planning is sized against. Select an hour to see it day by day.</p>
+    <div id="ch-hour"></div>
+    <div class="chips" id="hour-chips"></div>
+  </div>
+
+  <div class="card c5">
+    <h2>Traffic by weekday</h2>
+    <p class="note">Period-wide totals</p>
+    <div id="ch-dow"></div>
+  </div>
+
+  <div class="card c12">
+    <h2>Daily volume and unique visitors</h2>
+    <p class="note">Two measures, two charts — never two y-axes on one. Select a day for its detail,
+       or drag across either chart to narrow the date range.</p>
+    <div id="ch-daily"></div>
+    <div style="margin-top:12px"><div id="ch-visitors"></div></div>
+  </div>
+
+  <div class="card c12">
+    <h2>Unusual hours: Z-score anomaly detection</h2>
+    <p class="note" id="anom-note">Every hour is compared with the same hour on all other days:
+       z = (requests &minus; normal) &divide; standard deviation. Hours with |z| above 3 are flagged.
+       Select a row to open that day.</p>
+    <div class="chips" id="anom-chips"></div>
+    <div id="tbl-anom" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card c6">
+    <h2>Requests by content type</h2>
+    <p class="note">Request count and bandwidth rarely agree — that gap is where cost hides.
+       Select a type to compare its share of requests and bytes.</p>
+    <div id="ch-ext"></div>
+    <div class="chips" id="ext-chips"></div>
+  </div>
+
+  <div class="card c6">
+    <h2>Most-visited pages</h2>
+    <p class="note" id="urls-note">Search, sort, or download the table</p>
+    <div id="tbl-urls"></div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+/* Dragging across a daily chart narrows the range for every chart on the page.
+   The previous range is kept so the toast can put it back in one click. */
+function trafficBrush(a, b) {
+  const prevFrom = Store.from, prevTo = Store.to;
+  let f = a.date, t = b.date;
+  if (f > t) [f, t] = [t, f];
+  Store.setRange(f, t);
+  toast(`Showing ${fmt.date(f)} to ${fmt.date(t)}`, {
+    action: { label: "Undo", onClick: () => Store.setRange(prevFrom, prevTo) },
+  });
+}
+const hourLabel = h => String(h).padStart(2, "0");
+
+boot(function render() {
+  const d = Store.data;
+
+  const hours = Store.byHour();
+  const mx = Math.max(...hours.map(r => r.hits)), mn = Math.min(...hours.map(r => r.hits));
+  barChart($("#ch-hour"), hours, {
+    height: 215, y: r => r.hits,
+    color: r => r.hits >= mx * 0.9 ? cssv("--series-1") : cssv("--series-1-soft"),
+    xLabel: (r, i) => i % 3 === 0 ? hourLabel(r.hour) : null,
+    tip: r => `<b>${fmt.n(r.hits)}</b> requests<br>${hourLabel(r.hour)}:00–${hourLabel(r.hour)}:59`,
+    aria: r => `${hourLabel(r.hour)}:00 to ${hourLabel(r.hour)}:59, ${fmt.n(r.hits)} requests. Open hour detail`,
+    selected: r => r.hits === mx,
+    onClick: r => Detail.open("hour", r.hour),
+  });
+  chips($("#hour-chips"), [
+    ["peak", `${fmt.n(mx)} at ${hourLabel(hours.find(r => r.hits === mx).hour)}:00`],
+    ["trough", `${fmt.n(mn)} at ${hourLabel(hours.find(r => r.hits === mn).hour)}:00`],
+    ["swing", (mx / Math.max(mn, 1)).toFixed(1) + "×"],
+  ]);
+
+  // Weekday totals are period-wide, with no per-date breakdown to drill into,
+  // so these bars stay hover-only.
+  const order = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+  const dow = order.map(n => (d.weekday || []).find(w => w.dow === n)).filter(Boolean);
+  const dmax = Math.max(...dow.map(r => r.hits));
+  barChart($("#ch-dow"), dow, {
+    height: 215, y: r => r.hits,
+    color: r => r.hits === dmax ? cssv("--series-1") : cssv("--series-1-soft"),
+    xLabel: r => r.dow.slice(0, 3),
+    tip: r => `<b>${fmt.n(r.hits)}</b> requests<br>${r.dow}`,
+  });
+
+  const daily = Store.daily();
+  lineChart($("#ch-daily"), daily, {
+    area: true, height: 190, y: r => r.hits, xLabel: r => fmt.date(r.date), dateKey: r => r.date,
+    tip: r => `<b>${fmt.n(r.hits)}</b> requests<br>${fmt.dateLong(r.date)}`,
+    onClick: r => Detail.open("day", r.date),
+    onBrush: trafficBrush,
+  });
+  lineChart($("#ch-visitors"), daily, {
+    height: 150, color: cssv("--series-3"), y: r => r.visitors ?? 0,
+    xLabel: r => fmt.date(r.date), dateKey: r => r.date,
+    tip: r => `<b>${fmt.n(r.visitors ?? 0)}</b> unique visitors<br>${fmt.dateLong(r.date)}`,
+    onClick: r => Detail.open("day", r.date),
+    onBrush: trafficBrush,
+  });
+
+  // Z-score anomaly detection (jobs/anomalies.py): period-wide, so it ignores the range picker
+  const anom = d.anomaly_hours || [];
+  if (!anom.length) {
+    $("#anom-note").textContent = "No anomaly results yet: run make anomalies, then make dashboard.";
+  } else {
+    const top = anom[0], days = d.anomaly_days || [];
+    chips($("#anom-chips"), [
+      ["flagged hours", fmt.n(anom.length)],
+      ["strongest", `${fmt.date(top.date)} ${hourLabel(top.hour)}:00, z = ${top.z}`],
+      ["flagged days", days.length ? days.map(r => `${fmt.date(r.date)} (z = ${r.z})`).join(", ") : "none"],
+    ]);
+    dataTable($("#tbl-anom"), anom, [
+      { key: "date", label: "Date", render: v => esc(fmt.dateLong(v)) },
+      { key: "hour", label: "Hour", num: true, render: v => `${hourLabel(v)}:00` },
+      { key: "hits", label: "Requests", num: true },
+      { key: "normal_hits", label: "Normal for this hour", num: true },
+      { key: "z", label: "Z-score", num: true },
+      { key: "kind", label: "Type" },
+    ], { sortKey: "z", pageSize: 6, search: false, downloads: "anomaly_hours",
+         onRowClick: r => Detail.open("day", r.date) });
+  }
+
+  const ext = (d.content_types || []).slice(0, 8);
+  hbarChart($("#ch-ext"), ext, {
+    labelW: 84, valW: 158, x: r => r.hits, color: () => cssv("--series-2"),
+    label: r => r.ext || "(none)",
+    valueLabel: r => `${fmt.n(r.hits)} requests, ${r.gb} GB`,
+    tip: r => `<b>${fmt.n(r.hits)}</b> requests<br>${r.gb} GB transferred`,
+    aria: r => `${r.ext || "(none)"}: ${fmt.n(r.hits)} requests, ${r.gb} GB. Open file type detail`,
+    onClick: r => Detail.open("ext", r.ext),
+  });
+  const byHits = [...ext].sort((a,b) => b.hits - a.hits)[0];
+  const byGb = [...ext].sort((a,b) => b.gb - a.gb)[0];
+  if (byHits && byGb)
+    chips($("#ext-chips"), [
+      ["most requests", `${esc(byHits.ext)} (${fmt.n(byHits.hits)})`],
+      ["most bandwidth", `${esc(byGb.ext)} (${byGb.gb} GB)`],
+    ]);
+
+  // top_urls excludes images and non-200s, so it is a subset of meta.endpoints
+  // rather than a straight top-N of it — say "busiest pages", not "of all URLs".
+  $("#urls-note").textContent = capNote(
+    (d.top_urls || []).length, d.meta.endpoints, "distinct URLs in the logs",
+    "Images and non-200 responses are excluded. Select a row for detail, or search, sort, or download.");
+
+  // Paths are arbitrary client bytes: escape before they reach the table's innerHTML.
+  dataTable($("#tbl-urls"), d.top_urls || [], [
+    { key: "endpoint", label: "Endpoint", trunc: true, render: v => esc(v) },
+    { key: "hits", label: "Requests", num: true },
+  ], { sortKey: "hits", barKey: "hits", pageSize: 10,
+       placeholder: "Search endpoints…", downloads: "top_urls",
+       onRowClick: r => Detail.open("endpoint", r.endpoint) });
+});
+</script>
+{% endblock %}

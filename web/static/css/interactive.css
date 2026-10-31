@@ -1,0 +1,251 @@
+/* Interactive shell: search trigger, command palette, detail drawer, toasts,
+   segmented controls, clickable chart marks and linked table rows.
+   Uses the tokens from app.css only; shadows appear on overlays and nowhere else. */
+
+/* ------------------------------------------------------------ topbar search */
+.topbar .cmdk-trigger{
+  display:inline-flex;align-items:center;gap:18px;min-width:190px;justify-content:space-between;
+  padding:5px 6px 5px 11px;color:var(--nav-text);
+}
+.topbar .cmdk-trigger kbd{
+  background:transparent;color:var(--nav-text);border-color:rgba(255,255,255,.22);border-bottom-width:1px;
+}
+.topbar .cmdk-trigger:hover kbd{color:#fff;border-color:rgba(255,255,255,.4)}
+.topbar button:focus-visible{outline:2px solid var(--nav-mark);outline-offset:2px}
+@media(max-width:1100px){
+  .topbar .cmdk-trigger{min-width:0;gap:10px}
+}
+@media(max-width:760px){
+  .topbar .cmdk-trigger{padding:5px 11px}
+  .topbar .cmdk-trigger kbd{display:none}
+}
+
+/* --------------------------------------------------------------------- kbd */
+kbd{
+  display:inline-block;min-width:1.7em;padding:0 5px;text-align:center;
+  font:600 11.5px/1.6 var(--font-sans);font-variant-numeric:tabular-nums;
+  color:var(--text-secondary);background:var(--surface-2);
+  border:1px solid var(--border);border-bottom-width:2px;border-radius:4px;white-space:nowrap;
+}
+
+/* ----------------------------------------------------------------- buttons */
+/* app.css styles button.btn; links that act as buttons need the same face. */
+a.btn{
+  display:inline-flex;align-items:center;font-size:13.5px;line-height:1.55;color:var(--text-primary);
+  background:var(--surface-1);border:1px solid var(--border);border-radius:6px;padding:6px 11px;
+}
+a.btn:hover{background:var(--surface-2);text-decoration:none}
+a.btn.primary{background:var(--series-1);border-color:var(--series-1);color:var(--on-primary);font-weight:600}
+button.btn:focus-visible,a.btn:focus-visible{outline:2px solid var(--series-1);outline-offset:2px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0 4px}
+.actions:empty{display:none}
+
+/* ------------------------------------------------------- segmented control */
+.seg{
+  display:inline-flex;max-width:100%;overflow-x:auto;scrollbar-width:none;
+  background:var(--surface-1);border:1px solid var(--border);border-radius:6px;padding:2px;gap:2px;
+}
+.seg::-webkit-scrollbar{display:none}
+.seg button{
+  flex:none;font:inherit;font-size:13.5px;line-height:1.4;color:var(--text-secondary);background:transparent;
+  border:0;border-radius:4px;padding:4px 10px;cursor:pointer;white-space:nowrap;
+}
+.seg button:hover{color:var(--text-primary);background:var(--surface-2)}
+.seg button[aria-pressed="true"]{background:var(--text-primary);color:var(--surface-1);font-weight:600}
+.seg button:focus-visible{outline:2px solid var(--series-1);outline-offset:-2px}
+
+/* range bar layout: dates, presets, then summary and Copy link on the right */
+.rangebar .rb-dates{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rangebar #rb-summary{white-space:nowrap}
+@media(max-width:760px){
+  .rangebar{gap:8px 10px}
+  .rangebar .spacer{display:none}
+  .rangebar .rb-dates{flex:1 1 100%}
+  .rangebar .rb-dates input{flex:1;min-width:0}
+  .rangebar #rb-summary{flex:1;white-space:normal}
+}
+
+/* ------------------------------------------------------------ chart marks */
+svg .mark.clickable,svg .hm-cell.clickable{cursor:pointer}
+svg .mark.clickable:hover{filter:brightness(1.12)}
+html[data-theme="dark"] svg .mark.clickable:hover{filter:brightness(1.2)}
+svg .mark.clickable:focus{outline:none}
+svg .mark.clickable:focus-visible{outline:none;stroke:var(--text-primary);stroke-width:2px;paint-order:stroke}
+svg .hit:focus{outline:none}
+svg .brush{pointer-events:none}
+svg .hm-cell{transition:fill-opacity .12s}
+svg .hm-cell:focus{outline:none}
+svg .hm-cell:focus-visible{stroke:var(--text-primary);stroke-width:2px}
+@media (prefers-reduced-motion:reduce){svg .hm-cell{transition:none}}
+
+/* ------------------------------------------------------------- table rows */
+tr.rowlink{cursor:pointer}
+tr.rowlink:focus{outline:none}
+tr.rowlink:focus-visible{outline:2px solid var(--series-1);outline-offset:-2px;background:var(--surface-2)}
+tr.rowlink:focus-visible td{border-radius:0}
+
+/* ------------------------------------------------------ inline empty state */
+.empty-inline{
+  background:var(--surface-2);border:1px solid var(--border);border-radius:6px;
+  padding:12px 14px;margin:12px 0;font-size:13.5px;line-height:1.6;color:var(--text-secondary);
+}
+.empty-inline:empty{display:none}
+
+/* ------------------------------------------------------------------ deltas */
+.delta{font-size:12.5px;line-height:1.35;margin-top:4px;color:var(--text-secondary);font-variant-numeric:tabular-nums}
+.delta.up,.delta.down{color:var(--text-primary)}
+.delta.bad{color:var(--critical);font-weight:600}
+.delta.flat{color:var(--text-muted)}
+
+/* ------------------------------------------------------------ overlay base */
+html.overlay-lock,html.overlay-lock body{overflow:hidden}
+#tip{z-index:120}
+
+/* ----------------------------------------------------------------- drawer */
+#drawer-root .drawer-backdrop{
+  position:fixed;inset:0;z-index:70;background:rgba(6,13,23,.42);
+  opacity:0;transition:opacity .2s ease;
+}
+#drawer-root .drawer{
+  position:fixed;top:0;right:0;bottom:0;z-index:71;width:min(640px,100%);
+  display:flex;flex-direction:column;background:var(--surface-1);color:var(--text-primary);
+  border-left:1px solid var(--border);box-shadow:-18px 0 44px rgba(6,13,23,.22);
+  transform:translateX(24px);opacity:0;transition:transform .22s cubic-bezier(.2,.7,.2,1),opacity .18s ease;
+}
+#drawer-root .drawer.wide{width:min(880px,100%)}
+#drawer-root.open .drawer-backdrop{opacity:1}
+#drawer-root.open .drawer{transform:none;opacity:1}
+#drawer-root .drawer:focus{outline:none}
+html[data-theme="dark"] #drawer-root .drawer-backdrop{background:rgba(0,0,0,.55)}
+html[data-theme="dark"] #drawer-root .drawer{box-shadow:-18px 0 44px rgba(0,0,0,.5)}
+
+.drawer-head{
+  display:flex;align-items:flex-start;gap:16px;padding:18px 22px 14px;border-bottom:1px solid var(--border);
+}
+.drawer-titles{flex:1;min-width:0}
+#drawer-title{
+  margin:0;font-size:22px;line-height:1.2;font-weight:700;font-stretch:112%;letter-spacing:-.005em;
+  overflow-wrap:anywhere;
+}
+#drawer-title.mono{font-family:var(--font-mono);font-size:17px;font-weight:500;font-stretch:100%;letter-spacing:0}
+/* focus lands on the title so the dialog is announced; it is not a control */
+#drawer-title:focus,#drawer-title:focus-visible{outline:none}
+.drawer-sub{margin-top:4px;font-size:13.5px;color:var(--text-secondary)}
+.drawer-close{flex:none}
+.drawer-body{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:16px 22px 32px}
+
+.drawer-body .dsec{margin-top:24px}
+.drawer-body .dsec.first{margin-top:4px}
+.drawer-body h3{font-size:14.5px;font-weight:650;margin:0 0 4px}
+.drawer-body .dnote{font-size:13px;color:var(--text-secondary);margin:0 0 10px;line-height:1.5}
+.drawer-body .flag{font-size:13.5px;color:var(--text-secondary);line-height:1.6;margin:0 0 14px}
+.drawer-body .flag .badge{margin-right:6px}
+.drawer-body .kpis{margin:0}
+.drawer-body .kpi{flex:1 1 130px;padding:12px 14px 13px}
+.drawer-body .kpi .v{font-size:24px}
+.drawer-body .kpi .l{font-size:12.5px}
+
+.daynav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.daynav .hint{font-size:12.5px;color:var(--text-muted);margin-left:4px}
+
+.xlist{list-style:none;margin:10px 0 0;padding:0;border-top:1px solid var(--grid)}
+.xlist li{border-bottom:1px solid var(--grid)}
+.xrow{
+  display:flex;align-items:baseline;gap:14px;width:100%;padding:8px 6px;margin:0;text-align:left;
+  font:inherit;font-size:13.5px;color:var(--text-primary);background:transparent;border:0;cursor:pointer;
+}
+.xrow:hover{background:var(--surface-2)}
+.xrow:focus-visible{outline:2px solid var(--series-1);outline-offset:-2px;border-radius:4px}
+.xrow .xname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.xrow .xname.mono{font-size:12.5px}
+.xrow .xval{flex:none;color:var(--text-secondary);font-variant-numeric:tabular-nums;white-space:pre}
+
+.keytable{width:100%;font-size:13.5px}
+.keytable td{padding:7px 4px;border-bottom:1px solid var(--grid);vertical-align:middle}
+.keytable td.keys{width:42%;white-space:nowrap;color:var(--text-secondary)}
+.keytable tbody tr:hover{background:transparent}
+
+@media(max-width:760px){
+  #drawer-root .drawer,#drawer-root .drawer.wide{width:100%;border-left:0;transform:translateY(16px)}
+  .drawer-head{padding:14px 16px 12px}
+  #drawer-title{font-size:19px}
+  #drawer-title.mono{font-size:15px}
+  .drawer-body{padding:14px 16px 28px}
+  .drawer-body .kpi{flex-basis:45%}
+  .daynav .hint{display:none}
+}
+
+/* ---------------------------------------------------------------- palette */
+#palette-root .palette-backdrop{position:fixed;inset:0;z-index:90;background:rgba(6,13,23,.42)}
+html[data-theme="dark"] #palette-root .palette-backdrop{background:rgba(0,0,0,.55)}
+#palette-root .palette{
+  position:fixed;z-index:91;top:min(12vh,110px);left:50%;transform:translateX(-50%);
+  width:min(660px,calc(100vw - 32px));max-height:min(620px,calc(100vh - 2 * min(12vh,110px)));
+  display:flex;flex-direction:column;overflow:hidden;
+  background:var(--surface-1);color:var(--text-primary);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:0 24px 60px rgba(6,13,23,.3);
+  animation:pal-in .14s ease-out;
+}
+html[data-theme="dark"] #palette-root .palette{box-shadow:0 24px 60px rgba(0,0,0,.6)}
+@keyframes pal-in{from{opacity:0;transform:translate(-50%,-6px)}to{opacity:1;transform:translateX(-50%)}}
+.palette-field{border-bottom:1px solid var(--border);padding:6px}
+#palette-input{
+  display:block;width:100%;font:inherit;font-size:17px;line-height:1.4;color:var(--text-primary);
+  background:transparent;border:0;border-radius:5px;padding:9px 10px;
+}
+#palette-input::placeholder{color:var(--text-muted)}
+#palette-input:focus{outline:none}
+#palette-input:focus-visible{outline:2px solid var(--series-1);outline-offset:-2px}
+#palette-list{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:4px 0 8px}
+.pal-group{padding:10px 16px 4px;font-size:12px;font-weight:600;color:var(--text-muted)}
+.pal-opt{
+  display:flex;align-items:baseline;gap:14px;padding:7px 16px;cursor:pointer;
+  font-size:14px;line-height:1.4;box-shadow:inset 3px 0 0 transparent;
+}
+.pal-opt[aria-selected="true"]{background:var(--surface-2);box-shadow:inset 3px 0 0 var(--series-1)}
+.pal-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pal-title.mono{font-size:13px}
+.pal-title mark{background:color-mix(in srgb,var(--series-1) 20%,transparent);color:inherit;border-radius:2px;padding:0 1px}
+.pal-meta{flex:none;max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+          font-size:12.5px;color:var(--text-muted);font-variant-numeric:tabular-nums}
+.pal-empty{padding:18px 16px;font-size:13.5px;color:var(--text-secondary);line-height:1.55}
+.palette-foot{
+  display:flex;gap:16px;flex-wrap:wrap;padding:8px 16px;border-top:1px solid var(--border);
+  font-size:12px;color:var(--text-muted);background:var(--surface-2);
+}
+@media(max-width:760px){
+  #palette-root .palette{top:12px;max-height:calc(100vh - 24px)}
+  .palette-foot{display:none}
+  .pal-meta{max-width:38%}
+}
+
+/* ------------------------------------------------------------------ toast */
+#toast-root{
+  position:fixed;z-index:110;left:50%;bottom:20px;transform:translateX(-50%);
+  width:min(460px,calc(100vw - 32px));display:flex;flex-direction:column;gap:8px;pointer-events:none;
+}
+.toast{
+  pointer-events:auto;display:flex;align-items:center;gap:10px;
+  background:var(--text-primary);color:var(--surface-1);border-radius:6px;
+  padding:9px 8px 9px 14px;font-size:14px;line-height:1.45;
+  box-shadow:0 10px 30px rgba(6,13,23,.28);animation:toast-in .16s ease-out;
+}
+.toast.error{box-shadow:inset 4px 0 0 var(--critical),0 10px 30px rgba(6,13,23,.28);padding-left:18px}
+.toast.leaving{opacity:0;transform:translateY(6px);transition:opacity .15s,transform .15s}
+.toast-msg{flex:1;min-width:0}
+.toast button{
+  flex:none;font:inherit;font-size:13px;color:inherit;background:transparent;cursor:pointer;
+  border:1px solid color-mix(in srgb,var(--surface-1) 35%,transparent);border-radius:4px;padding:3px 10px;
+}
+.toast button:hover{background:color-mix(in srgb,var(--surface-1) 14%,transparent)}
+.toast button:focus-visible{outline:2px solid var(--nav-mark);outline-offset:2px}
+.toast .toast-close{border-color:transparent;font-size:18px;line-height:1;padding:2px 8px}
+@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ---------------------------------------------------------- reduced motion */
+@media (prefers-reduced-motion:reduce){
+  #drawer-root .drawer,#drawer-root .drawer-backdrop{transition:none}
+  #drawer-root .drawer,#drawer-root.open .drawer{transform:none}
+  #palette-root .palette,.toast{animation:none}
+  .toast.leaving{transition:none}
+}

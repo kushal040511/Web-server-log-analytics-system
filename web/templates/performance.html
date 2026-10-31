@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="kpis" id="kpis"></div>
+
+<div class="grid">
+  <div class="card c7">
+    <h2>Response payload size</h2>
+    <p class="note">HTTP 200 responses only</p>
+    <div id="ch-size"></div>
+    <div class="chips" id="pct-chips"></div>
+  </div>
+
+  <div class="card c5">
+    <h2>Where the bandwidth goes</h2>
+    <p class="note">Requests vs bytes, by content type — the two rarely agree. Select a type for detail.</p>
+    <div id="ch-band"></div>
+    <div class="chips" id="band-chips"></div>
+  </div>
+
+  <div class="card c12">
+    <div class="card-head">
+      <div><h2>Heaviest clients</h2>
+        <p class="note" id="hosts-note">A single host at the top usually means a proxy or a crawler, not a person.</p></div>
+    </div>
+    <div id="tbl-hosts"></div>
+  </div>
+
+  <div class="card c12">
+    <div class="callout">
+      <b>A note on what "performance" means here.</b> NCSA Common Log Format has no
+      response-time field, so this page measures response <em>weight</em> in bytes, not latency.
+      That is still the right lever for bandwidth cost, and it is honest about what the data
+      supports. On a live Nginx server you would add <code class="mono">$request_time</code> to the
+      log format; the parsing regex gains one field and every chart here would gain a latency twin.
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+boot(function render() {
+  const d = Store.data, p = d.size_percentiles || {}, m = d.meta;
+
+  kpiRow($("#kpis"), [
+    [fmt.bytes(p.p50 || 0), "median response (p50)"],
+    [fmt.bytes(p.p90 || 0), "p90"],
+    [fmt.bytes(p.p99 || 0), "p99"],
+    [fmt.bytes(p.max_bytes || 0), "largest single response"],
+    [m.gb + " GB", "total transferred"],
+  ]);
+
+  const order = ["0 (no body)", "<1 KB", "1-10 KB", "10-100 KB", "100 KB-1 MB", ">1 MB"];
+  const buckets = order.map(b => (d.size_buckets || []).find(x => x.bucket === b)).filter(Boolean);
+  barChart($("#ch-size"), buckets, {
+    height: 230, y: r => r.hits,
+    xLabel: r => r.bucket.replace(" (no body)", "").replace("100 KB-1 MB", "0.1–1M"),
+    tip: r => `<b>${fmt.n(r.hits)}</b> responses<br>${esc(r.bucket)}`,
+  });
+  chips($("#pct-chips"), [["p50", fmt.bytes(p.p50||0)], ["p90", fmt.bytes(p.p90||0)],
+                          ["p95", fmt.bytes(p.p95||0)], ["p99", fmt.bytes(p.p99||0)],
+                          ["mean", fmt.bytes(p.mean_bytes||0)]]);
+
+  // Share of bytes, which is the number that actually costs money.
+  const ext = [...(d.content_types || [])].sort((a, b) => b.gb - a.gb).slice(0, 7);
+  const totalGb = (d.content_types || []).reduce((a, r) => a + (+r.gb || 0), 0) || 1;
+  const totalHits = (d.content_types || []).reduce((a, r) => a + r.hits, 0) || 1;
+  hbarChart($("#ch-band"), ext, {
+    labelW: 76, valW: 150, x: r => +r.gb, color: () => cssv("--series-2"),
+    label: r => r.ext || "(none)",
+    valueLabel: r => `${r.gb} GB  (${(100 * r.gb / totalGb).toFixed(0)}%)`,
+    tip: r => `<b>${r.gb} GB</b>, ${(100*r.gb/totalGb).toFixed(1)}% of bytes<br>`
+            + `${fmt.n(r.hits)} requests, ${(100*r.hits/totalHits).toFixed(1)}% of requests`,
+    aria: r => `${r.ext || "(none)"}: ${r.gb} GB, ${(100*r.gb/totalGb).toFixed(1)}% of bytes. Open file type detail`,
+    onClick: r => Detail.open("ext", r.ext),
+  });
+  const worst = ext.reduce((a, r) =>
+    (!a || (r.gb / totalGb) / Math.max(r.hits / totalHits, 1e-9) > (a.gb / totalGb) / Math.max(a.hits / totalHits, 1e-9)) ? r : a, null);
+  if (worst)
+    chips($("#band-chips"), [["worst ratio",
+      `${esc(worst.ext)}: ${(100*worst.hits/totalHits).toFixed(1)}% of requests, ${(100*worst.gb/totalGb).toFixed(1)}% of bytes`]]);
+
+  $("#hosts-note").textContent = capNote(
+    (d.top_hosts || []).length, d.meta.visitors, "hosts that made a request",
+    "A single host at the top usually means a proxy or a crawler, not a person. Select a row for detail.");
+
+  // Hostnames are whatever the client resolved to in 1995: escape before innerHTML.
+  dataTable($("#tbl-hosts"), d.top_hosts || [], [
+    { key: "host", label: "Host", trunc: true, render: v => esc(v) },
+    { key: "hits", label: "Requests", num: true },
+    { key: "mb", label: "MB transferred", num: true, render: v => (+v).toFixed(1) },
+  ], { sortKey: "hits", barKey: "hits", pageSize: 15,
+       placeholder: "Search hosts…", downloads: "heaviest_hosts",
+       onRowClick: r => Detail.open("host", r.host) });
+});
+</script>
+{% endblock %}
