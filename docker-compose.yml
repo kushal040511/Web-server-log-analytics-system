@@ -87,7 +87,8 @@ services:
     command: ["spark-worker"]
     depends_on: [spark-master]
     environment:
-      # 2 cores + 2g for a pipeline job's executor, plus headroom.
+      # 2 cores + 2g for a pipeline job's executor, 1 core + 1g for the web
+      # SQL console's long-lived session, so neither can starve the other.
       SPARK_WORKER_CORES: "3"
       SPARK_WORKER_MEMORY: "3g"
     ports:
@@ -113,7 +114,8 @@ services:
       - ./output:/workspace/output
 
   # The website. Report pages read ./output only, so they survive the cluster
-  # going down.
+  # going down; the /sql page opens a real SparkSession, which is why this
+  # container also gets the cluster config.
   web:
     <<: *base
     container_name: web
@@ -125,6 +127,10 @@ services:
     volumes:
       - ./web:/workspace/web
       - ./output:/workspace/output
+      # the Log explorer page searches and replays the raw files directly
+      - ./data:/workspace/data:ro
+      # `make standalone` renders the site through this container (Flask lives here)
+      - ./scripts:/workspace/scripts:ro
       - ./conf/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml:ro
       - ./conf/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml:ro
       - ./conf/core-site.xml:/opt/spark/conf/core-site.xml:ro

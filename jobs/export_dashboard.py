@@ -128,7 +128,16 @@ data = {
     "anomaly_days":     table("anomaly_days", order=F.abs(F.col("z")).desc()),
     "hour_by_date":     hour_by_date,
     "status_by_date":   status_by_date,
+    "bots": None,
 }
+
+# The bot-detection summary is optional — the site hides that page's content
+# with a clear message until `make bots` has run.
+try:
+    raw = spark.read.text(f"{REPORTS}/bot_detection_summary").collect()
+    data["bots"] = json.loads("".join(r["value"] for r in raw))
+except Exception as e:
+    print(f"[export] no bot-detection summary yet ({type(e).__name__}) — run `make bots` first")
 
 out_json = os.path.join(OUT_DIR, "dashboard.json")
 with open(out_json, "w") as fh:

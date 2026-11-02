@@ -22,6 +22,9 @@
     <div class="card-head" style="flex-wrap:wrap">
       <div style="flex:1 1 320px"><h2>Broken links, ranked</h2>
         <p class="note" id="tbl-note">Fix from the top. Search by path, sort by either column.</p></div>
+      <div class="actions" id="raw-404-actions">
+        <button class="btn" type="button" id="raw-404" style="white-space:nowrap">Search raw logs for 404s</button>
+      </div>
     </div>
     <div id="tbl-404"></div>
   </div>
@@ -34,6 +37,10 @@
 {% endblock %}
 {% block scripts %}
 <script>
+/* The static export has no server behind it, so there is no /logs page to send
+   anyone to — remove the action rather than leave a dead button. */
+if (window.__DASHBOARD__ !== undefined) $("#raw-404-actions").remove();
+else $("#raw-404").addEventListener("click", () => { location.href = "/logs#status=404"; });
 
 function errorsBrush(a, b) {
   const prevFrom = Store.from, prevTo = Store.to;

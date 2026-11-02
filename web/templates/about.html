@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="grid">
+  <div class="card c12">
+    <h2>What this is</h2>
+    <p class="note">A batch pipeline that turns raw web server access logs into answers.</p>
+    <div class="flow">
+      <div class="step"><div class="n">01</div><div class="t">Collect</div>
+        <div class="d">Rotated Apache/Nginx logs land in HDFS, untouched.</div></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="n">02</div><div class="t">Store raw</div>
+        <div class="d">Immutable audit trail, replicated across two DataNodes.</div></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="n">03</div><div class="t">Parse</div>
+        <div class="d">Spark regex ETL to typed columns; malformed rows counted, not hidden.</div></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="n">04</div><div class="t">Curate</div>
+        <div class="d">Parquet partitioned by date, so a one-day query reads one day.</div></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="n">05</div><div class="t">Analyse</div>
+        <div class="d">Spark SQL reports and a Gaussian Mixture Model for bot detection.</div></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="n">06</div><div class="t">Serve</div>
+        <div class="d">This site, reading one small JSON that Spark wrote.</div></div>
+    </div>
+  </div>
+
+  <div class="card c6">
+    <h2>Two storage zones, and why</h2>
+    <div class="callout" style="background:transparent;border:0;padding:0">
+      <p><code class="mono">raw</code> is written once and never edited — it is the audit trail.
+      <code class="mono">curated</code> is always regenerable from it.</p>
+      <p style="margin-bottom:0">That is what makes the pipeline safe to iterate on. If the parsing
+      regex turns out to be wrong, you fix it, re-run the ETL, and nothing is lost. Every real data
+      platform is built this way, and it is the reason the raw zone looks wastefully redundant
+      until the first time you need it.</p>
+    </div>
+  </div>
+
+  <div class="card c6">
+    <h2>Why this site is deliberately dumb</h2>
+    <div class="callout" style="background:transparent;border:0;padding:0">
+      <p>Every page except <a href="/sql">SQL</a> reads a single JSON file that Spark produced.
+      The web service has no database connection, no query logic and no access to HDFS.</p>
+      <p style="margin-bottom:0">Two things follow. It cannot produce a wrong answer, because it
+      has no logic to get wrong — every number here was computed by Spark and can be traced back to
+      a query. And it keeps working when the cluster is shut down, which matters the morning of
+      a demo.</p>
+    </div>
+  </div>
+
+  <div class="card c6">
+    <h2>The stack</h2>
+    <div class="tablewrap"><table>
+      <tbody>
+        <tr><td>Storage</td><td class="mono">HDFS (Hadoop 3.3.6), replication 2</td></tr>
+        <tr><td>Processing</td><td class="mono">Apache Spark 3.5.3 (PySpark)</td></tr>
+        <tr><td>Query</td><td class="mono">Spark SQL over Parquet</td></tr>
+        <tr><td>File format</td><td class="mono">Parquet + Snappy, partitioned by date</td></tr>
+        <tr><td>Machine learning</td><td class="mono">Spark MLlib — Gaussian Mixture Model</td></tr>
+        <tr><td>Web</td><td class="mono">Flask; hand-drawn SVG charts, no CDN</td></tr>
+        <tr><td>Runtime</td><td class="mono">JDK 11 on Docker Compose</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="card c6">
+    <h2>The dataset, honestly</h2>
+    <div class="callout" style="background:transparent;border:0;padding:0">
+      <p><b>NASA-HTTP</b> — two months of real access logs from the Kennedy Space Center web
+      server, July and August 1995, published by the Internet Traffic Archive. Real production
+      traffic in NCSA Common Log Format, which is what Apache still writes today.</p>
+      <p><b>It has a real hole in it.</b> Four days are missing entirely — 29, 30 and 31 July, and
+      2 August — and the days on either side are partial. Charts here shade that gap rather than
+      drawing a straight line across it, and no job interpolates the missing values.</p>
+      <p><b>There is no response-time field.</b> So "performance" here means
+      response weight in bytes, not latency. A live Nginx deployment would add
+      <code class="mono">$request_time</code> to the log format.</p>
+      {% if has_data %}
+      <p style="margin-bottom:0"><b>Currently loaded:</b>
+        <code class="mono">{{ "{:,}".format(meta.records) }}</code> records covering
+        <b>{{ meta.days }}</b> day{{ "" if meta.days == 1 else "s" }},
+        {{ meta.date_min }} to {{ meta.date_max }}. That is what every number on this site is
+        computed from — if it is smaller than the full two months, the pipeline was run over a
+        subset of the logs.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card c12">
+    <h2>Reproducing any number on this site</h2>
+    <p class="note">Nothing here is hand-entered. Each page maps to a report table, and each report
+      table is one SQL query in <code class="mono">jobs/reports.py</code>.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Page</th><th>Report tables</th><th>Download</th></tr></thead>
+      <tbody>
+        <tr><td><a href="/traffic">Traffic</a></td>
+            <td class="mono">by_hour, daily, by_weekday, by_content_type, top_urls</td>
+            <td class="dl"><a href="/download/by_hour.csv">by_hour</a>
+                           <a href="/download/daily.csv">daily</a></td></tr>
+        <tr><td><a href="/errors">Errors</a></td>
+            <td class="mono">status_distribution, errors_daily, broken_links</td>
+            <td class="dl"><a href="/download/broken_links.csv">broken_links</a>
+                           <a href="/download/errors_daily.csv">errors_daily</a></td></tr>
+        <tr><td><a href="/performance">Performance</a></td>
+            <td class="mono">size_percentiles, size_buckets, heaviest_hosts</td>
+            <td class="dl"><a href="/download/heaviest_hosts.csv">heaviest_hosts</a></td></tr>
+        <tr><td><a href="/bots">Bot detection</a></td>
+            <td class="mono">bot_detection_summary, host_clusters</td>
+            <td>—</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:12px">Or check any of it yourself on the
+      <a href="/sql">SQL page</a>, which queries the curated data directly rather than these
+      pre-computed tables.</p>
+  </div>
+</div>
+
+{% endblock %}

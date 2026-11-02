@@ -334,6 +334,8 @@
       [m.gb + " GB", "transferred" + all, "performance"],
       [fmt.n(m.endpoints), "distinct URLs" + all, "traffic"],
       [fmt.pct(m.error_pct), "error rate (4xx + 5xx)" + all, "errors"],
+      ...(d.bots ? [[fmt.n(d.bots.hosts_flagged),
+                     `automated hosts (${d.bots.pct_requests_flagged}% of traffic)${all}`, "bots", true]] : []),
     ]);
 
     drawDaily();

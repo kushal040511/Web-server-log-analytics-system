@@ -27,7 +27,7 @@ function esc(s) {
 
 const IS_MAC = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent || "");
 /* The static export has no server behind it, so there is no raw log explorer. */
-const HAS_LOGS = false;
+const HAS_LOGS = typeof window.__DASHBOARD__ === "undefined";
 
 const isTextField = t => !!t && (t.isContentEditable || t.tagName === "TEXTAREA" || t.tagName === "SELECT"
   || (t.tagName === "INPUT" && !/^(checkbox|radio|button|submit|reset|range|color|file)$/i.test(t.type)));
@@ -760,7 +760,7 @@ function actionRow(items) {
 }
 
 /* The topbar link for a route, in both the served site and the static export
-   (where /traffic became traffic.html). */
+   (where /traffic became traffic.html and /logs and /sql do not exist). */
 function navLink(route) {
   const file = route === "/" ? "index.html" : route.slice(1) + ".html";
   return $$("nav.tabs a").find(n => [route, file].includes(n.getAttribute("href"))) || null;
@@ -1152,8 +1152,9 @@ const Recent = {
 };
 
 /* ------------------------------------------------------ keyboard shortcuts */
-const NAV_KEYS = [["o", "/", "Overview"], ["t", "/traffic", "Traffic"],
-  ["e", "/errors", "Errors"], ["p", "/performance", "Performance"]];
+const NAV_KEYS = [["o", "/", "Overview"], ["l", "/logs", "Log explorer"], ["t", "/traffic", "Traffic"],
+  ["e", "/errors", "Errors"], ["p", "/performance", "Performance"], ["b", "/bots", "Bot detection"],
+  ["m", "/ml", "Attack detection"], ["s", "/sql", "SQL"], ["a", "/about", "About"]];
 
 const Shortcuts = {
   open(o = {}) {
