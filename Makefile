@@ -77,10 +77,17 @@ reports:         ## run the four core reports as Spark SQL
 anomalies:       ## Z-score anomaly detection on hourly and daily traffic (Spark SQL)
 	$(EXEC) spark-submit /workspace/jobs/anomalies.py
 
+bots:            ## run the GMM automated-traffic detector (Spark MLlib, unsupervised)
+	$(EXEC) spark-submit /workspace/jobs/bot_detection.py
+
 dashboard:       ## export report tables to ./output for the website (JSON + CSV downloads)
 	$(EXEC) spark-submit /workspace/jobs/export_dashboard.py
 	@echo
 	@echo "  Website ready → http://localhost:8050"
+
+standalone:      ## export the site to output/site/ + site.zip — opens with no server
+	$(DC) exec -T web python3 /workspace/scripts/make_standalone.py 2>/dev/null \
+	  || python3 scripts/make_standalone.py
 
 web:             ## (re)start just the website
 	$(DC) up -d web
@@ -101,6 +108,8 @@ skeleton: ingest etl reports anomalies dashboard  ## the end-to-end thin slice: 
 	@echo "=============================================="
 
 
+all: skeleton bots dashboard  ## first half + bot detection, then re-export the site
+
 ## ---------------------------------------------------------------- inspect
 
 ls:              ## list what is in HDFS
@@ -118,7 +127,7 @@ sql:             ## open an interactive Spark SQL prompt against the curated dat
 fsck:            ## prove replication is real — every block should have 2 copies
 	$(EXEC) hdfs fsck /data/weblogs/raw -files -blocks -locations | tail -25
 
-.PHONY: help build up down destroy status logs shell data ingest etl reports anomalies dashboard web site skeleton ls report sql fsck
+.PHONY: help build up down destroy status logs shell data ingest etl reports anomalies bots dashboard standalone web site skeleton all ls report sql fsck
 
 ## ---------------------------------------------------------------- machine learning
 # Web-attack detection: Factorization Machine vs 7 Spark MLlib models.

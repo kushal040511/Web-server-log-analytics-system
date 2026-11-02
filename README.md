@@ -1,7 +1,7 @@
 # Log Analytics System for a Web Server
 
 A distributed **Hadoop HDFS + Apache Spark** pipeline that turns raw web-server access logs into
-reports, unusual-traffic alerts and web-attack detection. Demonstrated on the real NASA-HTTP logs
+reports, unusual-traffic alerts, automated-traffic (bot) detection and web-attack detection. Demonstrated on the real NASA-HTTP logs
 (July–August 1995, 3.46 million requests).
 
 **Team:** Kushal Mohan (RA2411028010082) · Kriti Singh (RA2411028010081) · Gargi Singh (RA2411028010102)
@@ -16,6 +16,7 @@ reports, unusual-traffic alerts and web-attack detection. Demonstrated on the re
 | Store | **Hadoop HDFS** in Docker (1 NameNode, 2 DataNodes, replication 2) | Kriti | `docker/`, `docker-compose.yml`, `conf/` | 356 MB raw logs, every block stored twice |
 | Clean | **Apache Spark** (PySpark ETL) | Kushal | `jobs/etl.py` | 3,461,613 lines → 3,461,612 rows, 1 reject, 58 date folders of Parquet (41.5 MB) |
 | Analyse | **Spark SQL** | Gargi | `jobs/reports.py`, `jobs/anomalies.py`, `jobs/export_dashboard.py` | 11 reports; Z-score finds 12 unusual hours (13 July 1995, STS-70 launch) |
+| Detect bots | **Spark MLlib** (unsupervised) | Team | `jobs/bot_detection.py` | Gaussian Mixture Model on 9 per-host behaviour features; 1,829 of 38,104 hosts (4.8%, 6.4% of requests) flagged as automated, checked against hosts that fetched `/robots.txt` |
 | Detect attacks | **Spark MLlib** | Team | `jobs/ml_preprocess.py`, `jobs/ml_train.py`, `jobs/ml_crossdataset.py` | Factorization Machine, F1 0.967, compared with 7 models (see [ML.md](ML.md)) |
 
 ## Run it
@@ -27,14 +28,37 @@ make data          # download the NASA logs into ./data (356 MB)
 make build         # build the image: Java 11, Hadoop 3.3.6, Spark 3.5.3
 make up            # start the 7 containers, wait for HDFS
 make skeleton      # ingest -> etl -> reports -> anomalies -> dashboard
+make bots          # GMM bot detection on the NASA hosts, then: make dashboard
 make ml            # attack data -> HDFS -> preprocessing -> 8 models -> output/ml/ml_report.html
 ```
 
 | URL | What |
 |---|---|
-| http://localhost:8050 | Website (Overview, Traffic, Errors, Performance, Attack detection) |
+| http://localhost:8050 | Website: 9 pages (below) |
 | http://localhost:9870 | HDFS NameNode |
 | http://localhost:8080 | Spark master |
+
+### The website
+
+| Page | What is on it | Needs |
+|---|---|---|
+| `/` Overview | KPI row, daily volume, status mix, top pages and broken links | `make dashboard` |
+| `/logs` Log explorer | Search and replay the raw access log line by line | the files in `./data` |
+| `/traffic` | Hour-of-day and weekday profiles, content types, Z-score unusual hours | `make dashboard` |
+| `/errors` | 404 rate over time, status codes, ranked broken links | `make dashboard` |
+| `/performance` | Response-size percentiles and buckets, heaviest clients | `make dashboard` |
+| `/bots` | GMM bot detection: clusters, behaviour signature, validation | `make bots && make dashboard` |
+| `/ml` Attack detection | Factorization Machine vs 7 models, cross-dataset, stability, NASA audit | `make ml` |
+| `/sql` | Read-only live Spark SQL console on the curated Parquet | the cluster running (`make up`) |
+| `/about` | How the pipeline is built and where each number comes from | — |
+
+Every table can be searched, sorted, paged and downloaded as CSV or JSON. Every page except `/sql`
+reads files Spark already wrote, so it keeps working with the cluster stopped. `/sql` accepts
+`SELECT`, `WITH`, `SHOW`, `DESCRIBE` and `EXPLAIN` only and caps results at 500 rows.
+
+`make standalone` writes `output/site/` and `output/site.zip`: the report pages as plain HTML with
+the data inside, which open with no server. `/sql`, `/logs` and `/ml` are left out because they need
+a live server.
 
 Run `make` on its own to list every target. On a Mac, double-click `run_pipeline.command` to build, start and run everything. No Docker? Open `notebooks/LogAnalytics_Colab.ipynb`
 in Google Colab and use Runtime → Run all.
@@ -80,6 +104,13 @@ F1 0.968 ± 0.008, against 0.897 for Logistic Regression and 0.848 for Linear SV
 alarms. That is why the FM is the deployed model. Settings were chosen on a validation split, never the
 test set. Details in [ML.md](ML.md).
 
+**Bot detection (unsupervised, on the NASA logs themselves):** hosts with at least 20 requests are
+split into sessions (30-minute gap), described by 9 behaviour features (log-scaled and standardised),
+and clustered with a 3-component Gaussian Mixture Model (silhouette 0.49). One component holds the
+automated clients: 1,829 hosts, 4.8% of clustered hosts and 6.4% of requests. GMM was chosen over
+K-Means because the automated group is small and elongated; K-Means either absorbs it (k = 2) or
+splits it apart (k = 8).
+
 **NASA logs:** the FM flags 120 of 31,026 URLs (1,754 requests, 0.05%). Checked by hand, none is an attack
 (searches for "select", pages under /msfc/de**script**ion/, malformed requests); see ML.md.
 
@@ -111,13 +142,15 @@ To run only the website (no Docker): `pip install -r requirements-gargi.txt`, th
 docker/            Dockerfile + entrypoint.sh (one image, a role per container)
 docker-compose.yml the 7-container cluster
 conf/              core-site.xml, hdfs-site.xml, spark-defaults.conf
-jobs/              Spark jobs: etl, reports, anomalies, export_dashboard,
+jobs/              Spark jobs: etl, reports, anomalies, bot_detection, export_dashboard,
                    ml_preprocess, ml_tune, ml_train, ml_crossdataset, ml_robustness
-web/               Flask website: Overview, Traffic (with Z-score anomalies), Errors, Performance, Attack detection
-scripts/           data download, NASA flag audit, scalability benchmark
+web/               Flask website: Overview, Log explorer, Traffic (with Z-score anomalies), Errors,
+                   Performance, Bot detection, Attack detection, SQL console, About
+scripts/           data download, NASA flag audit, scalability benchmark, standalone site export
 tests/             end-to-end tests (pytest) + small fixtures
 .github/workflows/ CI: runs the tests on every push
-notebooks/         Google Colab version of the pipeline
-docs/              figures and ML results
+notebooks/         Google Colab version of the pipeline (+ the 50% review and v1 copies)
+docs/              figures and ML results; docs/reviews/ has the decks, the 50% report,
+                   the speaker script and the earlier README and team notes
 data/, output/     created locally, not in git
 ```

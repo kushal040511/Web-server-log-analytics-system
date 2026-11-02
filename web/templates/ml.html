@@ -4,6 +4,57 @@
 <div class="kpis" id="kpis"></div>
 
 <div class="grid" id="ml-grid">
+  <div class="card c12">
+    <h2>How attack detection works</h2>
+    <p class="note">Every step is a Spark job on the cluster; the labelled data lives in HDFS at <code class="mono">/data/attacks</code>.</p>
+    <div class="flow">
+      <div class="step"><div class="n">01</div><div class="t">Labelled data</div>
+        <div class="d">1,373,724 HTTP requests marked normal or attack, from two public datasets (HttpParams, Fwaf), loaded into HDFS.</div></div>
+      <div class="step"><div class="n">02</div><div class="t">Clean</div>
+        <div class="d">URL-decode, lower-case, keep only the query part (bias fix), remove duplicates and requests labelled both ways → 1,306,017.</div></div>
+      <div class="step"><div class="n">03</div><div class="t">Split</div>
+        <div class="d" id="flow-split">80% train / 20% test. Training is balanced to 4 normal : 1 attack; the test set keeps the real mix (2.9% attacks).</div></div>
+      <div class="step"><div class="n">04</div><div class="t">Features</div>
+        <div class="d" id="flow-feat">Character 1-, 2- and 3-grams hashed into 3 × 4,096 buckets, plus length, special-character, digit and keyword counts, scaled 0–1.</div></div>
+      <div class="step"><div class="n">05</div><div class="t">Train 8 models</div>
+        <div class="d">The Factorization Machine and 7 other Spark MLlib models learn on the same features; settings are chosen on a validation split.</div></div>
+      <div class="step"><div class="n">06</div><div class="t">Test and use</div>
+        <div class="d">Scored on test requests never seen in training, repeated on 5 splits and on the other dataset, then run on every NASA URL.</div></div>
+    </div>
+  </div>
+
+  <div class="card c7">
+    <h2>How the Factorization Machine works</h2>
+    <p class="note">Our main model: <code class="mono">FMClassifier</code> in Spark MLlib.</p>
+    <div class="fm-eq mono">ŷ = w₀ + Σ<sub>i</sub> w<sub>i</sub>x<sub>i</sub> + Σ<sub>i&lt;j</sub> ⟨v<sub>i</sub>, v<sub>j</sub>⟩ x<sub>i</sub>x<sub>j</sub>
+      &nbsp;&nbsp;→&nbsp;&nbsp; P(attack) = sigmoid(ŷ)</div>
+    <ul class="fm-list">
+      <li><b>w₀ + Σ w<sub>i</sub>x<sub>i</sub></b> is logistic regression: one weight per feature, such as the 3-gram <code class="mono">1=1</code>.</li>
+      <li><b>Σ ⟨v<sub>i</sub>, v<sub>j</sub>⟩ x<sub>i</sub>x<sub>j</sub></b> adds a weight for every <em>pair</em> of features. Each feature gets a short vector v<sub>i</sub> of 8 numbers, and the weight of a pair is the dot product of the two vectors.</li>
+      <li>So the model can learn that <code class="mono">'</code>, <code class="mono">or</code> and <code class="mono">--</code> appearing <em>together</em> is far more suspicious than any one of them alone.</li>
+      <li>Storing a separate weight for every pair of 12,292 features would need about 75 million numbers. The factor vectors need 12,292 × 8 ≈ 98,000, and pairs that never appear together in training still get a sensible weight.</li>
+      <li>Settings, chosen on the validation split: factor size 8, step size 0.2, regularisation 10⁻⁴, 100 iterations.</li>
+    </ul>
+  </div>
+
+  <div class="card c5">
+    <h2>One request, step by step</h2>
+    <p class="note">What the pipeline does to a typical SQL-injection attempt.</p>
+    <ol class="ex-steps">
+      <li><span>Raw request</span><code class="mono">/top.php?stuff=1%27%20or%201=1--</code></li>
+      <li><span>URL-decode, lower-case</span><code class="mono">/top.php?stuff=1' or 1=1--</code></li>
+      <li><span>Keep the query part</span><code class="mono">stuff=1' or 1=1--</code></li>
+      <li><span>Character 3-grams (some)</span><code class="mono">"1' " · "' o" · " or" · "1=1" · "=1-" · "1--"</code></li>
+      <li><span>Counts</span><code class="mono">length 17 · special 5 · digits 3 · keywords 0</code></li>
+      <li><span>Model</span><code class="mono">12,292 numbers → P(attack); above 0.5 = attack</code></li>
+    </ol>
+  </div>
+
+  <div class="card c12" id="verdict-card" hidden>
+    <h2>So which model is best?</h2>
+    <div class="callout" id="verdict"></div>
+  </div>
+
   <div class="card c12" id="ml-empty" hidden>
     <div class="callout">
       <b>No machine-learning results yet.</b> Run <code class="mono">make ml</code> (about 20–30 minutes):
@@ -25,6 +76,27 @@
     <div id="cm"></div>
   </div>
 
+  <div class="card c7">
+    <h2>Precision, recall and F1 side by side</h2>
+    <p class="note" id="prf-note">Precision: when the model says "attack", how often it is right. Recall: how many real attacks it catches.</p>
+    <div class="legend-row"><span class="sw" style="background:var(--series-1)"></span>Precision
+      <span class="sw" style="background:var(--series-2)"></span>Recall
+      <span class="sw" style="background:var(--series-3)"></span>F1</div>
+    <div id="ch-prf"></div>
+  </div>
+
+  <div class="card c5">
+    <h2>Training time</h2>
+    <p class="note">Seconds to train on the cluster, same data for every model. Faster is cheaper to retrain.</p>
+    <div id="ch-time"></div>
+  </div>
+
+  <div class="card c12">
+    <h2>The 8 models: how each one decides</h2>
+    <p class="note">All are Spark MLlib classifiers trained on the same features and scored on the same test set.</p>
+    <div id="tbl-how"></div>
+  </div>
+
   <div class="card c12">
     <h2>All 8 models on the same test set</h2>
     <p class="note" id="tbl-note"></p>
@@ -43,6 +115,12 @@
     <p class="note">Trained on one labelled dataset, tested on the other. A large drop means the
        model learned that dataset's style, not attacks in general.</p>
     <div id="tbl-cross"></div>
+  </div>
+
+  <div class="card c12" id="tune-card" hidden>
+    <h2>How the settings were chosen</h2>
+    <p class="note" id="tune-note"></p>
+    <div id="tbl-tune"></div>
   </div>
 
   <div class="card c12" id="nasa-card" hidden>
@@ -70,11 +148,85 @@
   .cm .cell { border-radius: var(--radius, 6px); padding: 16px 8px; text-align: center; border: 1px solid var(--border); }
   .cm .cell b { display: block; font-size: 20px; }
   .cm .cell span { font-size: 12px; }
+  .fm-eq { font-size: 16px; padding: 12px 14px; margin: 8px 0 10px; border: 1px solid var(--border);
+           border-radius: var(--radius, 6px); overflow-x: auto; white-space: nowrap; }
+  .fm-list { margin: 0; padding-left: 18px; line-height: 1.6; font-size: 14px; color: var(--text-secondary); }
+  .fm-list li { margin: 4px 0; }
+  .ex-steps { margin: 6px 0 0; padding-left: 20px; font-size: 13px; }
+  .ex-steps li { margin: 0 0 9px; }
+  .ex-steps span { display: block; color: var(--text-secondary); margin-bottom: 2px; }
+  .ex-steps code { display: block; overflow-x: auto; white-space: nowrap; padding: 4px 6px;
+                   border: 1px solid var(--border); border-radius: 4px; }
+  .legend-row { display: flex; gap: 6px 14px; align-items: center; flex-wrap: wrap; font-size: 12px;
+                color: var(--text-secondary); margin: 2px 0 8px; }
+  .legend-row .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: -8px; }
+  .prf { display: grid; grid-template-columns: 200px 1fr; gap: 2px 10px; align-items: center; font-size: 13px; }
+  .prf .m { text-align: right; padding: 6px 0; }
+  .prf .bars { display: grid; gap: 2px; padding: 6px 0; border-bottom: 1px solid var(--border); }
+  .prf .bar { position: relative; height: 9px; border-radius: 2px; }
+  .prf .bar i { position: absolute; left: calc(100% + 6px); top: -3px; font-style: normal; font-size: 11px;
+                color: var(--text-secondary); white-space: nowrap; }
+  .prf .bars { padding-right: 56px; }
+  .prf .ours { font-weight: 650; }
+  .prf.tm { grid-template-columns: 170px 1fr; }
+  .prf.tm .bar { height: 12px; }
+  .prf-axis { font-size: 11px; color: var(--text-muted); margin: 6px 0 0 210px; }
+  @media (max-width: 640px) { .prf { grid-template-columns: 1fr; } .prf .m { text-align: left; padding-bottom: 0; }
+                              .prf-axis { margin-left: 0; } }
 </style>
 {% endblock %}
 {% block scripts %}
 <script>
-let ML = null, CROSS = null, ROBUST = null, AUDIT = null, ML_SEL = null;
+let ML = null, CROSS = null, ROBUST = null, AUDIT = null, TUNE = null, ML_SEL = null;
+
+const HOW = {
+  "Factorization Machine (ours)": ["Linear + feature pairs", "A weight per feature plus a learned weight for every pair of features (8-number factor vectors).", "factor size 8, step 0.2, reg 1e-4, 100 iter."],
+  "Logistic Regression": ["Linear", "One weight per feature; the weighted sum goes through a sigmoid to give P(attack).", "reg 1e-4, 100 iter."],
+  "Linear SVM": ["Linear, max-margin", "Finds the straight boundary with the widest gap between normal and attack requests.", "reg 1e-4, 100 iter."],
+  "Naive Bayes": ["Probabilistic", "Counts how often each n-gram appears in each class and assumes the features are independent.", "multinomial"],
+  "Decision Tree": ["Tree", "Asks a chain of up to 10 yes/no questions about the features.", "max depth 10"],
+  "Random Forest": ["Tree ensemble (bagging)", "30 trees, each trained on a random sample, vote on the answer.", "30 trees, depth 10"],
+  "Gradient Boosted Trees": ["Tree ensemble (boosting)", "15 small trees built one after another, each correcting the previous ones' mistakes.", "15 rounds, depth 5"],
+  "Multilayer Perceptron": ["Neural network", "One hidden layer of 32 neurons; uses a compact 388-feature version because it needs dense input.", "388 → 32 → 2, 100 iter."],
+};
+const isOurs = m => /ours/.test(m);
+
+function prfChart(host, R) {
+  const vals = R.flatMap(r => [r.precision, r.recall, r.f1]);
+  const lo = Math.max(0, Math.floor(Math.min(...vals) * 10) / 10), span = 1 - lo || 1;
+  const w = v => `${Math.max(1, (100 * (v - lo)) / span).toFixed(1)}%`;
+  const bar = (v, c) => `<div class="bar" style="width:calc(${w(v)});background:var(${c})"><i>${v.toFixed(3)}</i></div>`;
+  host.innerHTML = `<div class="prf">` + R.map(r =>
+    `<div class="m${isOurs(r.model) ? " ours" : ""}">${esc(r.model)}</div>
+     <div class="bars" title="${esc(r.model)}: precision ${r.precision.toFixed(4)}, recall ${r.recall.toFixed(4)}, F1 ${r.f1.toFixed(4)}">
+       ${bar(r.precision, "--series-1")}${bar(r.recall, "--series-2")}${bar(r.f1, "--series-3")}</div>`).join("")
+    + `</div><div class="prf-axis">Bars start at ${lo.toFixed(1)}, not 0, so the differences are visible.</div>`;
+}
+
+function verdict(R) {
+  const rs = ROBUST && ROBUST.summary ? [...ROBUST.summary].sort((a, b) => b.f1_mean - a.f1_mean) : null;
+  const fmR = rs && rs.find(r => isOurs(r.model));
+  const exp = k => CROSS ? CROSS.filter(c => c.experiment.startsWith(k)).sort((a, b) => b.f1 - a.f1) : [];
+  const A = exp("A"), B = exp("B"), fmA = A.find(c => isOurs(c.model)), fmB = B.find(c => isOurs(c.model));
+  const fastest = [...R].sort((a, b) => a.train_seconds - b.train_seconds)[0];
+  const parts = [];
+  if (rs && fmR) parts.push(`<b>Inside one dataset:</b> ${esc(rs[0].model)} has the highest mean F1 over ${ROBUST.seeds.length} random splits `
+    + `(${rs[0].f1_mean.toFixed(4)} ± ${rs[0].f1_std.toFixed(4)}); the Factorization Machine scores ${fmR.f1_mean.toFixed(4)} ± ${fmR.f1_std.toFixed(4)}. `
+    + `The linear models are the most accurate here, and the tree, probabilistic and neural models are clearly behind.`);
+  else parts.push(`<b>On the test set:</b> ${esc(R[0].model)} has the highest F1 (${R[0].f1.toFixed(4)}).`);
+  if (A.length && fmA) parts.push(`<b>On a dataset it was not trained on</b> (trained on Fwaf, tested on HttpParams): `
+    + `${esc(A[0].model)} is best with F1 ${A[0].f1.toFixed(4)}` + (isOurs(A[0].model)
+      ? `, against ${A.slice(1).map(c => `${esc(c.model)} ${c.f1.toFixed(4)}`).join(" and ")}, with ${Math.round(A[1].fp / Math.max(fmA.fp, 1))}–${Math.round(A[A.length - 1].fp / Math.max(fmA.fp, 1))}× fewer false alarms.`
+      : `; the Factorization Machine scores ${fmA.f1.toFixed(4)}.`));
+  if (B.length && fmB) parts.push(`<b>With little training data</b> (trained only on the small HttpParams set): every model fails `
+    + `(best F1 ${B[0].f1.toFixed(4)}), and the Factorization Machine does worst (${fmB.f1.toFixed(4)}): its pair weights overfit.`);
+  parts.push(`<b>Speed:</b> ${esc(fastest.model)} trains fastest (${fastest.train_seconds} s).`);
+  parts.push(`<b>Our choice:</b> we deploy the Factorization Machine because a detector meets traffic unlike its training data, and `
+    + `there, given enough training data, it transfers best. If you only care about accuracy on data like the training set, `
+    + `the Linear SVM is the better model. Both results are reported.`);
+  $("#verdict").innerHTML = parts.map(p => `<p style="margin:0 0 8px">${p}</p>`).join("");
+  $("#verdict-card").hidden = false;
+}
 
 async function getJSON(url) {
   try { const r = await fetch(url); return r.ok ? await r.json() : false; } catch { return false; }
@@ -147,6 +299,28 @@ boot(async function render() {
     { key: "train_seconds", label: "Train time (s)", num: true },
   ], { sortKey: "f1", barKey: "f1", pageSize: 8, search: false, onRowClick: r => drawMatrix(r) });
 
+  $("#flow-split").textContent = `80% train / 20% test. ${fmt.n(ML.train)} training requests, balanced to 4 normal : 1 attack; `
+    + `${fmt.n(ML.test)} test requests keep the real mix (2.9% attacks).`;
+  $("#flow-feat").textContent = `Character 1-, 2- and 3-grams hashed into 3 × 4,096 buckets, plus length, special-character, `
+    + `digit and keyword counts: ${fmt.n(ML.features)} features, scaled 0–1.`;
+
+  prfChart($("#ch-prf"), R);
+  const byTime = [...R].sort((a, b) => a.train_seconds - b.train_seconds);
+  const tmax = Math.max(...byTime.map(r => r.train_seconds)) || 1;
+  $("#ch-time").innerHTML = `<div class="prf tm">` + byTime.map(r =>
+    `<div class="m${isOurs(r.model) ? " ours" : ""}">${esc(r.model)}</div>
+     <div class="bars" title="${esc(r.model)}: ${r.train_seconds} s, F1 ${r.f1.toFixed(4)}">
+       <div class="bar" style="width:${Math.max(1, 100 * r.train_seconds / tmax).toFixed(1)}%;background:var(${isOurs(r.model) ? "--series-1" : "--series-2"})"><i>${r.train_seconds} s</i></div></div>`).join("") + `</div>`;
+  dataTable($("#tbl-how"), R.map(r => ({ ...r, family: (HOW[r.model] || ["", "", ""])[0],
+                                          how: (HOW[r.model] || ["", "", ""])[1], settings: (HOW[r.model] || ["", "", ""])[2] })), [
+    { key: "model", label: "Model", render: v => isOurs(v) ? `<b>${esc(v)}</b>` : esc(v) },
+    { key: "family", label: "Type", render: v => esc(v) },
+    { key: "how", label: "How it decides", render: v => esc(v) },
+    { key: "settings", label: "Settings", render: v => `<span class="mono">${esc(v)}</span>` },
+    { key: "f1", label: "F1", num: true, render: v => `<b>${v.toFixed(4)}</b>` },
+    { key: "train_seconds", label: "Train (s)", num: true },
+  ], { sortKey: "f1", pageSize: 8, search: false, onRowClick: r => drawMatrix(r) });
+
   if (CROSS === null) {
     try { const c = await fetch("/api/ml/cross"); CROSS = c.ok ? await c.json() : false; } catch { CROSS = false; }
   }
@@ -184,6 +358,24 @@ boot(async function render() {
       { key: "only_second_right", label: "Only the other right", num: true },
       { key: "p_value", label: "McNemar p", num: true, render: v => v < 0.05 ? `<b>${v}</b>` : `${v}` },
     ], { pageSize: 10, search: false });
+  }
+
+  verdict(R);
+
+  if (TUNE === null) TUNE = await getJSON("/api/ml/tuning");
+  if (TUNE && (TUNE.grid || []).length) {
+    $("#tune-card").hidden = false;
+    $("#tune-note").textContent = `The ${fmt.n(TUNE.fit + TUNE.validation)} training requests were split again: models learned on `
+      + `${fmt.n(TUNE.fit)} and were scored on the other ${fmt.n(TUNE.validation)}. The test set was never used to pick settings. `
+      + `The best setting for each model (bold) is the one used everywhere else on this page.`;
+    const best = TUNE.best || {};
+    const isBest = r => best[r.model] && JSON.stringify(best[r.model].params) === JSON.stringify(r.params);
+    dataTable($("#tbl-tune"), TUNE.grid.map(r => ({ ...r, setting: Object.entries(r.params).map(([k, v]) => `${k} = ${v}`).join(", ") })), [
+      { key: "model", label: "Model", render: v => esc(v) },
+      { key: "setting", label: "Setting tried", render: (v, r) => isBest(r) ? `<b class="mono">${esc(v)}</b>` : `<span class="mono">${esc(v)}</span>` },
+      { key: "val_f1", label: "Validation F1", num: true, render: (v, r) => isBest(r) ? `<b>${v.toFixed(4)}</b>` : v.toFixed(4) },
+      { key: "train_seconds", label: "Train (s)", num: true },
+    ], { pageSize: 12, search: false });
   }
 
   if (AUDIT === null) AUDIT = await getJSON("/api/ml/audit");

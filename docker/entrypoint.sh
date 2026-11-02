@@ -60,7 +60,8 @@ case "$ROLE" in
 
   web)
     # No wait_for here on purpose: the report pages only need ./output, so the
-    # site must come up even when the cluster is down.
+    # site must come up even when the cluster is down. The /sql page connects
+    # lazily and reports its own error if the cluster is missing.
     export PYTHONPATH="$SPARK_HOME/python:$SPARK_HOME/python/lib/py4j-0.10.9.7-src.zip:${PYTHONPATH:-}"
     log "starting the website on 8050"
     exec python3 /workspace/web/app.py
