@@ -108,6 +108,7 @@ services:
       - ./conf/hdfs-site.xml:/opt/spark/conf/hdfs-site.xml:ro
       - ./conf/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf:ro
       - ./jobs:/workspace/jobs
+      - ./scripts:/workspace/scripts:ro
       - ./data:/workspace/data
       - ./output:/workspace/output
 

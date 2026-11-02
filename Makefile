@@ -150,7 +150,7 @@ ml-robust:       ## repeat the top 3 models on 5 random splits: mean ± std, ROC
 	$(EXEC) spark-submit /workspace/jobs/ml_robustness.py
 
 ml-audit:        ## sort the NASA URLs the model flags into hand-checked categories
-	python3 scripts/audit_nasa_flags.py output/ml/ml_results.json
+	$(EXEC) python3 /workspace/scripts/audit_nasa_flags.py /workspace/output/ml/ml_results.json
 
 ml: ml-data ml-ingest ml-prep ml-tune ml-train ml-cross ml-robust ml-audit  ## the whole ML stage; results on http://localhost:8050/ml
 
