@@ -20,21 +20,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         curl ca-certificates procps net-tools less nano python3 python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
-# ---- Hadoop -----------------------------------------------------------------
+# ---- Hadoop + Spark -----------------------------------------------------------
+# archive.apache.org keeps every release but can be very slow, so faster mirrors are
+# tried first. A mirror slower than 50 KB/s for 20 s is abandoned and the next one tried.
+COPY docker/fetch.sh /usr/local/bin/fetch
+RUN sed -i 's/\r$//' /usr/local/bin/fetch && chmod +x /usr/local/bin/fetch
+
 RUN set -eux; \
-    url="https://archive.apache.org/dist/hadoop/common/hadoop-${HADOOP_VERSION}/hadoop-${HADOOP_VERSION}.tar.gz"; \
-    echo "Downloading $url"; \
-    curl -fSL --retry 3 "$url" -o /tmp/hadoop.tgz; \
+    fetch "hadoop/common/hadoop-${HADOOP_VERSION}/hadoop-${HADOOP_VERSION}.tar.gz" /tmp/hadoop.tgz; \
     mkdir -p "$HADOOP_HOME"; \
     tar -xzf /tmp/hadoop.tgz -C "$HADOOP_HOME" --strip-components=1; \
     rm /tmp/hadoop.tgz; \
     rm -rf "$HADOOP_HOME"/share/doc
 
-# ---- Spark ------------------------------------------------------------------
 RUN set -eux; \
-    url="https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop3.tgz"; \
-    echo "Downloading $url"; \
-    curl -fSL --retry 3 "$url" -o /tmp/spark.tgz; \
+    fetch "spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop3.tgz" /tmp/spark.tgz; \
     mkdir -p "$SPARK_HOME"; \
     tar -xzf /tmp/spark.tgz -C "$SPARK_HOME" --strip-components=1; \
     rm /tmp/spark.tgz

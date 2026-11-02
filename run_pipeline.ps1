@@ -54,7 +54,9 @@ if ($Stage -ne "ml") {
 
     # -------------------------------------------------------------- cluster (make build, make up)
     Step "build: image with Java 11, Hadoop 3.3.6, Spark 3.5.3 (first time ~10 min)"
-    Run @("docker", "compose", "build")
+    docker image inspect loganalytics/hadoop-spark:3.3.6-3.5.3 *> $null
+    if ($LASTEXITCODE -eq 0 -and $env:REBUILD -ne "1") { Write-Host "  image already built - skipping (set REBUILD=1 to rebuild)" }
+    else { Run @("docker", "compose", "build") }
     Step "up: start the 7 containers and wait for HDFS"
     Run @("docker", "compose", "up", "-d")
     for ($i = 0; $i -lt 60; $i++) {
