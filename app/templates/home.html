@@ -42,7 +42,7 @@
   <div class="kpi"><span class="kpi-ic green">{{ icon("target") }}</span><div><small>Attack-detection F1</small>
     <b>{{ (k.fm or {}).get('f1')|num(4) }}</b><em>Factorization Machine, {{ k.models|num }} models compared</em></div></div>
 </section>
-{% if status.kpis == "not computed" %}<p class="note">Spark is computing the headline numbers from HDFS; reload in a few seconds.</p>{% endif %}
+{% if status.kpis == "not computed" %}<p class="note">Spark is computing the headline numbers from HDFS; this page reloads by itself.</p>{% endif %}
 
 <section class="grid3">
   <div class="card">
@@ -88,4 +88,5 @@
 <script src="{{ url_for('static', filename='superset-embedded-sdk-0.1.3.js') }}"></script>
 <script src="{{ url_for('static', filename='embed.js') }}"></script>
 <script>embedSuperset("home", "dash-home");</script>
+{% if status.kpis == "not computed" %}<script>setTimeout(() => location.reload(), 10000);  // numbers still being computed by Spark</script>{% endif %}
 {% endblock %}

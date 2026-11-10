@@ -40,7 +40,7 @@ are missing, then opens the app.
 
 | URL | What |
 |---|---|
-| http://localhost:3000 | **LogLens**, the application (no login) |
+| http://localhost:3080 | **LogLens**, the application (no login) |
 | http://localhost:8088 | **Dashboards** (Apache Superset), login `admin` / `admin` |
 | http://localhost:9870 | HDFS NameNode |
 | http://localhost:8080 | Spark master (the dashboard queries run as the `thrift-server` application) |
@@ -48,7 +48,7 @@ are missing, then opens the app.
 
 ### The frontend: LogLens + Apache Superset
 
-The frontend uses only big data visualisation tools for its charts. **LogLens** (`app/`, port 3000) is the
+The frontend uses only big data visualisation tools for its charts. **LogLens** (`app/`, port 3080) is the
 application around them, in the style of a product dashboard: a sidebar, a home page, and pages for traffic,
 errors, anomalies, bots and model performance. It draws no charts itself:
 
@@ -63,7 +63,7 @@ errors, anomalies, bots and model performance. It draws no charts itself:
 - **Data & pipeline** shows what is in each HDFS zone right now, live from the NameNode (WebHDFS).
 
 ```
-HDFS (Parquet) -> Spark Thrift Server :10000 (Spark SQL) -> Apache Superset :8088 -> LogLens app :3000
+HDFS (Parquet) -> Spark Thrift Server :10000 (Spark SQL) -> Apache Superset :8088 -> LogLens app :3080
              \-> Spark ML model + Spark queries ------------------------------------^
 ```
 

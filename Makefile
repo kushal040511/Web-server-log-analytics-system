@@ -43,7 +43,7 @@ status:          ## show cluster health and the web UIs
 	@echo
 	@$(DC) ps --format "table {{.Name}}\t{{.Status}}" 2>/dev/null || $(DC) ps
 	@echo
-	@echo "  LogLens app  http://localhost:3000   (the application; charts are embedded Superset dashboards)"
+	@echo "  LogLens app  http://localhost:3080   (the application; charts are embedded Superset dashboards)"
 	@echo "  Dashboards   http://localhost:8088   (Apache Superset, admin / admin)"
 	@echo "  Spark SQL    jdbc:hive2://localhost:10000/weblogs   (Spark Thrift Server)"
 	@echo "  HDFS         http://localhost:9870"
@@ -112,10 +112,10 @@ dashboards:      ## (re)build the 5 Superset dashboards from superset/build_dash
 
 bi: ml-publish bi-tables dashboards app  ## publish ML tables, register all tables, build the dashboards, (re)start the app
 
-app:             ## (re)start LogLens, the application frontend -> http://localhost:3000
+app:             ## (re)start LogLens, the application frontend -> http://localhost:3080
 	$(DC) up -d app
 	$(DC) restart app
-	@echo "  LogLens: http://localhost:3000"
+	@echo "  LogLens: http://localhost:3080"
 
 ## ---------------------------------------------------------------- inspect
 

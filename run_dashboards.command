@@ -47,5 +47,5 @@ for i in $(seq 1 40); do curl -sf http://localhost:8088/health >/dev/null && bre
 make bi
 make status
 echo; echo "===== [$(date '+%H:%M:%S')] ALL DONE"
-echo "LogLens app: http://localhost:3000    Superset: http://localhost:8088 (admin / admin)"
-open http://localhost:3000 || true
+echo "LogLens app: http://localhost:3080    Superset: http://localhost:8088 (admin / admin)"
+open http://localhost:3080 || true

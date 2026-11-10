@@ -67,3 +67,19 @@ def test_unknown_page_and_dashboard(app_client):
     assert c.get("/nope").status_code == 404
     assert c.get("/api/guest-token/nope").status_code == 404
     assert c.get("/api/guest-token/traffic").status_code == 503      # Superset not running in the tests
+
+
+def test_pages_render_before_spark_is_ready():
+    """Right after start-up the numbers are not computed yet: pages must show dashes, not fail."""
+    os.environ.update(SUPERSET_URL="http://127.0.0.1:9", WEBHDFS="http://127.0.0.1:9/webhdfs/v1")
+    sys.path.insert(0, os.path.join(ROOT, "app"))
+    import engine, app as webapp
+    saved = dict(engine.KPIS)
+    engine.KPIS.clear()
+    try:
+        c = webapp.app.test_client()
+        for path in ("/", "/check", "/pipeline"):
+            r = c.get(path)
+            assert r.status_code == 200 and "–" in r.get_data(as_text=True), path
+    finally:
+        engine.KPIS.update(saved)

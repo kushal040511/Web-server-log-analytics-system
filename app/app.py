@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-LogLens: the application frontend of the Log Analytics System (port 3000).
+LogLens: the application frontend of the Log Analytics System (http://localhost:3080).
 
 The app is the shell: navigation, a home page with live headline numbers, the attack
 checker and the pipeline page. Every chart is an Apache Superset dashboard embedded with a
 guest token (Superset embedded mode); every number is a Spark query on HDFS; the attack
 checker runs the saved Spark ML model. The app draws no charts itself.
 
-    docker compose up -d app        ->  http://localhost:3000
+    docker compose up -d app        ->  http://localhost:3080
 """
 import os, time, collections
 from flask import Flask, render_template, jsonify, request, abort
@@ -46,14 +46,21 @@ def inject():
 
 @app.template_filter("num")
 def num(v, digits=0):
-    if v is None:
+    """Thousands separators; a dash while Spark is still computing the number (or a stage has not run)."""
+    try:
+        return f"{float(v):,.{digits}f}"
+    except Exception:   # None, or not computed yet (jinja2 Undefined)
         return "–"
-    return f"{v:,.{digits}f}"
+
+
+def kpis():
+    """The headline numbers; any not computed yet read as None (shown as a dash)."""
+    return collections.defaultdict(lambda: None, engine.KPIS)
 
 
 @app.route("/")
 def home():
-    return render_template("home.html", page="home", k=engine.KPIS, recent=list(RECENT), examples=EXAMPLES)
+    return render_template("home.html", page="home", k=kpis(), recent=list(RECENT), examples=EXAMPLES)
 
 
 @app.route("/<slug>")
@@ -75,12 +82,12 @@ def check():
         except Exception as e:
             error = str(e)
     return render_template("check.html", page="check", text=text, result=result, error=error,
-                           examples=EXAMPLES, recent=list(RECENT), k=engine.KPIS)
+                           examples=EXAMPLES, recent=list(RECENT), k=kpis())
 
 
 @app.route("/pipeline")
 def pipeline():
-    return render_template("pipeline.html", page="pipeline", zones=engine.hdfs_summary(), k=engine.KPIS)
+    return render_template("pipeline.html", page="pipeline", zones=engine.hdfs_summary(), k=kpis())
 
 
 @app.route("/about")

@@ -16,12 +16,12 @@ reading the HDFS tables through the **Spark Thrift Server** (Spark SQL over JDBC
 | `app/` (team) | LogLens, the application: embeds the Superset dashboards with guest tokens |
 
 ```
-HDFS (Parquet)  ->  Spark Thrift Server :10000  ->  Apache Superset :8088  ->  LogLens app :3000
+HDFS (Parquet)  ->  Spark Thrift Server :10000  ->  Apache Superset :8088  ->  LogLens app :3080
 ```
 
 ## Demo (about 4 minutes)
 
-1. `make bi`, then open the app at http://localhost:3000 (Superset itself: http://localhost:8088, `admin` / `admin`).
+1. `make bi`, then open the app at http://localhost:3080 (Superset itself: http://localhost:8088, `admin` / `admin`).
 2. **1 · Traffic overview** — the KPIs, requests per day, the hour-of-day and weekday profiles, top URLs.
 3. **2 · Errors and performance** — status codes, the daily 404 rate, broken links, response sizes.
 4. **3 · Anomaly detection** — the hourly traffic spike on 13 July and the 12 unusual hours against their normal level.
