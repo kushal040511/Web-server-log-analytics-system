@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block title %}Data & pipeline{% endblock %}
+{% block crumb %}Dashboard / <b>Data & pipeline</b>{% endblock %}
+{% block content %}
+<section class="page-h">
+  <div><h1>Data & pipeline</h1>
+  <p>Raw web logs go into Hadoop HDFS, Spark turns them into tables, Spark SQL and Spark MLlib analyse them,
+     and Apache Superset shows the results through the Spark Thrift Server.</p></div>
+</section>
+
+<section class="flow">
+  {% for n, tool, what, who in [
+     ("1", "Hadoop HDFS", "Store the raw logs, every block on 2 DataNodes", "Kriti"),
+     ("2", "Apache Spark", "Parse 3.46 M lines into a typed Parquet table, split by date", "Kushal"),
+     ("3", "Spark SQL", "11 reports and the Z-score anomaly detector", "Gargi"),
+     ("4", "Spark MLlib", "Gaussian Mixture Model (bots) and Factorization Machine (attacks)", "Team"),
+     ("5", "Spark Thrift Server", "Spark SQL over JDBC for BI tools", "Gargi"),
+     ("6", "Apache Superset", "Every chart and dashboard; this app embeds them", "Gargi")] %}
+  <div class="step"><span class="n">{{ n }}</span><b>{{ tool }}</b><p>{{ what }}</p><small>{{ who }}</small></div>
+  {% endfor %}
+</section>
+
+<section class="grid2">
+  <div class="card span2">
+    <div class="card-h"><h3>What is in HDFS right now</h3><span class="tag">live from the NameNode (WebHDFS)</span></div>
+    <table class="tbl">
+      <thead><tr><th>Zone</th><th>HDFS path</th><th class="r">Files</th><th class="r">Size</th><th class="r">On disk (×2 replicas)</th></tr></thead>
+      <tbody>{% for z in zones %}
+        <tr><td>{{ z.zone }}</td><td class="mono">{{ z.path }}</td><td class="r">{{ z.files|num }}</td>
+            <td class="r">{% if z.mb is not none %}{{ z.mb|num(1) }} MB{% else %}–{% endif %}</td>
+            <td class="r">{% if z.replicated_mb is not none %}{{ z.replicated_mb|num(1) }} MB{% else %}–{% endif %}</td></tr>
+      {% endfor %}</tbody>
+    </table>
+    <p class="muted">“On disk” is twice the size because HDFS keeps two copies of every block (replication factor 2), so one DataNode can fail without losing data.</p>
+  </div>
+  <div class="card">
+    <div class="card-h"><h3>Cluster consoles</h3></div>
+    <ul class="links">
+      <li><a href="http://localhost:9870" target="_blank" rel="noopener">HDFS NameNode ↗</a><small>:9870 · files, blocks, DataNodes</small></li>
+      <li><a href="http://localhost:8080" target="_blank" rel="noopener">Spark master ↗</a><small>:8080 · running jobs, the Thrift Server</small></li>
+      <li><a href="{{ superset_public }}" target="_blank" rel="noopener">Apache Superset ↗</a><small>:8088 · dashboards, SQL Lab</small></li>
+      <li><span class="mono">jdbc:hive2://localhost:10000/weblogs</span><small>Spark SQL for any BI tool</small></li>
+    </ul>
+  </div>
+</section>
+{% endblock %}

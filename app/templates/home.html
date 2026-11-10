@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block title %}Dashboard{% endblock %}
+{% block crumb %}Dashboard{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-text">
+    <h1>Welcome to <span>LogLens</span></h1>
+    <h2>A big data log analytics system for web servers</h2>
+    <p>3.46 million requests to NASA's Kennedy Space Center web server (July–August 1995), stored in
+       Hadoop HDFS, cleaned and analysed with Apache Spark, mined with Spark MLlib and visualised with Apache Superset.</p>
+    <div class="hero-actions">
+      <a class="btn" href="/check">Check a request</a>
+      <a class="btn ghost" href="/pipeline">How it works</a>
+    </div>
+  </div>
+  <div class="hero-art" aria-hidden="true">
+    <svg viewBox="0 0 220 150">
+      <rect x="18" y="20" width="120" height="110" rx="12" class="a1"/>
+      <rect x="32" y="38" width="70" height="8" rx="4" class="a2"/><rect x="32" y="54" width="92" height="8" rx="4" class="a2"/>
+      <rect x="32" y="70" width="80" height="8" rx="4" class="a2"/><rect x="32" y="86" width="60" height="8" rx="4" class="a2"/>
+      <circle cx="148" cy="82" r="44" class="a3"/><circle cx="148" cy="82" r="30" class="a4"/>
+      <path d="M131 84l12 12 22-26" class="a5"/>
+      <path d="M180 114l26 26" class="a6"/>
+    </svg>
+  </div>
+  <ul class="hero-list">
+    <li>Store logs in HDFS (replicated ×2)</li><li>Clean them with Spark</li>
+    <li>Find unusual hours (Z-score)</li><li>Spot bots (GMM)</li><li>Detect attacks (Factorization Machine)</li>
+  </ul>
+</section>
+
+<section class="kpis">
+  <div class="kpi"><span class="kpi-ic blue">{{ icon("activity") }}</span><div><small>Requests analysed</small>
+    <b>{{ k.requests|num }}</b><em>{{ k.days|num }} days · {{ (k.hosts_gb or {}).get('hosts')|num }} hosts</em></div></div>
+  <div class="kpi"><span class="kpi-ic red">{{ icon("alert") }}</span><div><small>Error rate (4xx + 5xx)</small>
+    <b>{{ k.errors_pct|num(2) }}%</b><em>{{ (k.hosts_gb or {}).get('gb')|num(2) }} GB served</em></div></div>
+  <div class="kpi"><span class="kpi-ic amber">{{ icon("zap") }}</span><div><small>Unusual hours</small>
+    <b>{{ k.unusual_hours|num }}</b><em>peak z = {{ k.top_z|num(2) }} (STS-70 launch)</em></div></div>
+  <div class="kpi"><span class="kpi-ic violet">{{ icon("cpu") }}</span><div><small>Automated hosts</small>
+    <b>{{ k.automated_hosts|num }}</b><em>{{ k.automated_pct|num(2) }}% of requests</em></div></div>
+  <div class="kpi"><span class="kpi-ic green">{{ icon("target") }}</span><div><small>Attack-detection F1</small>
+    <b>{{ (k.fm or {}).get('f1')|num(4) }}</b><em>Factorization Machine, {{ k.models|num }} models compared</em></div></div>
+</section>
+{% if status.kpis == "not computed" %}<p class="note">Spark is computing the headline numbers from HDFS; reload in a few seconds.</p>{% endif %}
+
+<section class="grid3">
+  <div class="card">
+    <div class="card-h"><h3>Quick actions</h3></div>
+    <div class="qa">
+      <a href="/check">{{ icon("shield") }}<span>Check a request</span></a>
+      <a href="/attacks">{{ icon("target") }}<span>Model performance</span></a>
+      <a href="/anomalies">{{ icon("zap") }}<span>Unusual hours</span></a>
+      <a href="/bots">{{ icon("cpu") }}<span>Bot detection</span></a>
+      <a href="/pipeline">{{ icon("database") }}<span>Data & pipeline</span></a>
+      <a href="{{ superset_public }}/sqllab/" target="_blank" rel="noopener">{{ icon("sql") }}<span>Run Spark SQL</span></a>
+    </div>
+    </div>
+  <div class="card">
+    <div class="card-h"><h3>Recent checks</h3><a href="/check" class="tag">Check one →</a></div>
+    {% if recent %}
+      <ul class="recent">{% for r in recent %}
+        <li><span class="mono">{{ r.normalised[:28] }}{% if r.normalised|length > 28 %}…{% endif %}</span>
+            <span class="badge {{ 'bad' if r.attack else 'good' }}">{{ 'Attack' if r.attack else 'Normal' }}</span>
+            <b>{{ (100 * r.p_attack)|num(1) }}%</b></li>{% endfor %}</ul>
+    {% else %}
+      <p class="muted">No requests checked yet. Try one of these:</p>
+      <ul class="recent">{% for name, ex in examples[:4] %}<li><a href="/check?q={{ ex|urlencode }}">{{ name }}</a></li>{% endfor %}</ul>
+    {% endif %}
+  </div>
+  <div class="card takeaways">
+  <div class="card-h"><h3>Key takeaways</h3></div>
+  <ul>
+    <li>Traffic peaks at 15:00 New York time and on Thursdays; weekends carry about half a weekday's load.</li>
+    <li>11 of the 12 unusual hours fall on the morning of 13 July 1995, the STS-70 Space Shuttle launch.</li>
+    <li>A Gaussian Mixture Model finds 1,829 automated hosts (6.4% of requests) without any labels.</li>
+    <li>Inside one dataset the linear SVM is the most accurate; trained on one dataset and tested on another, the Factorization Machine transfers best (F1 0.968 vs 0.848).</li>
+  </ul>
+</div>
+</section>
+
+<section class="card">
+  <div class="card-h"><h3>At a glance</h3><span class="tag">Apache Superset · Spark SQL on HDFS</span></div>
+  <div id="dash-home" class="embed"><div class="embed-msg">Loading the Superset dashboard…</div></div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='superset-embedded-sdk-0.1.3.js') }}"></script>
+<script src="{{ url_for('static', filename='embed.js') }}"></script>
+<script>embedSuperset("home", "dash-home");</script>
+{% endblock %}

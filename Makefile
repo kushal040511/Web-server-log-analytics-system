@@ -43,6 +43,7 @@ status:          ## show cluster health and the web UIs
 	@echo
 	@$(DC) ps --format "table {{.Name}}\t{{.Status}}" 2>/dev/null || $(DC) ps
 	@echo
+	@echo "  LogLens app  http://localhost:3000   (the application; charts are embedded Superset dashboards)"
 	@echo "  Dashboards   http://localhost:8088   (Apache Superset, admin / admin)"
 	@echo "  Spark SQL    jdbc:hive2://localhost:10000/weblogs   (Spark Thrift Server)"
 	@echo "  HDFS         http://localhost:9870"
@@ -109,7 +110,12 @@ dashboards:      ## (re)build the 5 Superset dashboards from superset/build_dash
 	@echo
 	@echo "  Dashboards: http://localhost:8088  (admin / admin)"
 
-bi: ml-publish bi-tables dashboards  ## publish ML tables, register all tables, build the dashboards
+bi: ml-publish bi-tables dashboards app  ## publish ML tables, register all tables, build the dashboards, (re)start the app
+
+app:             ## (re)start LogLens, the application frontend -> http://localhost:3000
+	$(DC) up -d app
+	$(DC) restart app
+	@echo "  LogLens: http://localhost:3000"
 
 ## ---------------------------------------------------------------- inspect
 
@@ -128,7 +134,7 @@ sql:             ## open an interactive Spark SQL prompt against the curated dat
 fsck:            ## prove replication is real — every block should have 2 copies
 	$(EXEC) hdfs fsck /data/weblogs/raw -files -blocks -locations | tail -25
 
-.PHONY: help build up down destroy status logs shell data ingest etl reports anomalies bots skeleton all ml-publish bi-tables dashboards bi ls report sql fsck
+.PHONY: help build up down destroy status logs shell data ingest etl reports anomalies bots skeleton all ml-publish bi-tables dashboards bi app ls report sql fsck
 
 ## ---------------------------------------------------------------- machine learning
 # Web-attack detection: Factorization Machine vs 7 Spark MLlib models.
@@ -150,6 +156,9 @@ ml-train:        ## train FM + 7 models, confusion matrices, score the NASA logs
 	@echo
 	@echo "  Results: output/ml/ml_report.html; dashboards: make bi, then http://localhost:8088"
 
+ml-model:        ## save the deployed Factorization Machine to hdfs:///models/fm_attack (for the app's checker)
+	$(EXEC) spark-submit /workspace/jobs/ml_save_model.py
+
 ml-cross:        ## cross-dataset test: train on one dataset, test on the other (~10 min)
 	$(EXEC) spark-submit /workspace/jobs/ml_crossdataset.py
 
@@ -162,9 +171,9 @@ ml-robust:       ## repeat the top 3 models on 5 random splits: mean ± std, ROC
 ml-audit:        ## sort the NASA URLs the model flags into hand-checked categories
 	$(EXEC) python3 /workspace/scripts/audit_nasa_flags.py /workspace/output/ml/ml_results.json
 
-ml: ml-data ml-ingest ml-prep ml-tune ml-train ml-cross ml-robust ml-audit  ## the whole ML stage; then `make bi` for the dashboards
+ml: ml-data ml-ingest ml-prep ml-tune ml-train ml-model ml-cross ml-robust ml-audit  ## the whole ML stage; then `make bi` for the dashboards
 
-.PHONY: ml-data ml-ingest ml-prep ml-tune ml-train ml-cross ml-robust ml-audit ml
+.PHONY: ml-data ml-ingest ml-prep ml-tune ml-train ml-model ml-cross ml-robust ml-audit ml
 
 ## ---------------------------------------------------------------- quality
 

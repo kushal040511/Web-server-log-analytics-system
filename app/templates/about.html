@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block title %}About{% endblock %}
+{% block crumb %}Dashboard / <b>About the project</b>{% endblock %}
+{% block content %}
+<section class="page-h"><div><h1>About the project</h1>
+<p>Log Analytics System for a Web Server · Big Data Essentials · SRM Institute of Science and Technology</p></div></section>
+<section class="grid2">
+  <div class="card span2">
+    <div class="card-h"><h3>The team</h3></div>
+    <table class="tbl">
+      <thead><tr><th>Member</th><th>Register no.</th><th>Big data tool</th><th>Part</th></tr></thead>
+      <tbody>
+        <tr><td>Kriti Singh</td><td>RA2411028010081</td><td>Hadoop HDFS, Docker</td><td>The cluster: NameNode, 2 DataNodes, replication, ingest</td></tr>
+        <tr><td>Kushal Mohan</td><td>RA2411028010082</td><td>Apache Spark</td><td>ETL: raw text → typed Parquet table</td></tr>
+        <tr><td>Gargi Singh</td><td>RA2411028010102</td><td>Spark SQL, Apache Superset</td><td>Reports, Z-score anomalies, the dashboards</td></tr>
+        <tr><td>Team</td><td></td><td>Spark MLlib</td><td>Bot detection (GMM) and attack detection (Factorization Machine)</td></tr>
+      </tbody>
+    </table>
+    <p class="muted">Guide: Dr. Senthil Kumar K, Department of Networking and Communications.</p>
+  </div>
+  <div class="card">
+    <div class="card-h"><h3>Data</h3></div>
+    <ul class="links">
+      <li><b>NASA-HTTP</b><small>2 months of Kennedy Space Center web logs, 1995 (Internet Traffic Archive)</small></li>
+      <li><b>HttpParams</b><small>labelled HTTP parameter values, normal and attack</small></li>
+      <li><b>Fwaf</b><small>labelled URLs, normal and malicious</small></li>
+    </ul>
+    <p class="muted">This app is a shell: every chart is an embedded Apache Superset dashboard, every number a Spark query on HDFS.</p>
+  </div>
+</section>
+{% endblock %}

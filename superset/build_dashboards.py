@@ -190,7 +190,8 @@ def dashboard(number, title, slug, intro):
            "HEADER_ID": {"id": "HEADER_ID", "type": "HEADER", "meta": {"text": title}}}
     # an intro text block, then charts packed into rows of 12 columns
     rows, row, used = [], [], 0
-    rows.append([("MARKDOWN", intro, 12, 18)])
+    if intro:
+        rows.append([("MARKDOWN", intro, 12, 18)])
     for _, cid, w, h, name in items:
         if used + w > 12:
             rows.append(row); row, used = [], 0
@@ -224,6 +225,8 @@ def dashboard(number, title, slug, intro):
                                             "position_json": json.dumps(pos), "json_metadata": json.dumps(meta)})["id"]
     for _, cid, *_ in items:
         call("PUT", f"/chart/{cid}", json={"dashboards": [did]})
+    # allow the LogLens app to embed it with a short-lived guest token (Superset embedded mode)
+    call("POST", f"/dashboard/{did}/embedded", json={"allowed_domains": []})
     print(f"  dashboard {number}: {title}  ({len(items)} charts)  {URL}/superset/dashboard/{slug}/")
     return did
 
@@ -260,7 +263,7 @@ DB_ID = database()
 print(f"[superset] database '{DB_NAME}' -> {SPARK_URI}")
 
 # remove our old charts (titles are prefixed with the dashboard number)
-for prefix in ("1.", "2.", "3.", "4.", "5."):
+for prefix in ("0.", "1.", "2.", "3.", "4.", "5."):
     q = json.dumps({"filters": [{"col": "slice_name", "opr": "sw", "value": prefix}], "page_size": 100})
     for c in call("GET", "/chart/", params={"q": q})["result"]:
         call("DELETE", f"/chart/{c['id']}")
@@ -294,6 +297,15 @@ dataset("top_automated_hosts", sql="""SELECT host, n_requests, round(head_ratio 
        round(error_ratio * 100, 1) AS error_pct, hit_robots
 FROM weblogs.host_clusters WHERE segment = 'automated'""")
 print(f"[superset] {len(DATASETS)} datasets")
+
+# ---------------------------------------------------------------- 0. Home (embedded on the LogLens app's home page)
+D = 0
+line(D, "0. Requests per day", "daily", "date", [m("SUM(hits)", "Requests")], width=8, height=50, area=True)
+pie(D, "0. HTTP status codes", "status_distribution", col("cast(status AS string)", "Status"), m("SUM(hits)", "Requests"),
+    width=4, height=50)
+bar(D, "0. Requests by hour of day", "by_hour", "hour", [m("SUM(hits)", "Requests")], width=6, height=45, values=False)
+bar(D, "0. F1 of the 8 attack-detection models", "ml_comparison", "model", [m("MAX(f1)", "F1")], width=6, height=45,
+    horizontal=True, sort_x=False, sort_by_metric=True, fmt=".3f")
 
 # ---------------------------------------------------------------- 1. Traffic overview
 D = 1
@@ -438,7 +450,8 @@ INTRO = {
        "models on the same 261,076 unseen test requests, on 5 random splits (McNemar's test) and across datasets. "
        "Inside one dataset the linear SVM is best; trained on Fwaf and tested on HttpParams, the FM transfers best.",
 }
-TITLES = {1: ("1 · Traffic overview", "traffic"), 2: ("2 · Errors and performance", "errors"),
+INTRO[0] = ""
+TITLES = {0: ("0 · Home", "home"), 1: ("1 · Traffic overview", "traffic"), 2: ("2 · Errors and performance", "errors"),
           3: ("3 · Anomaly detection (Z-score)", "anomalies"), 4: ("4 · Bot detection (GMM)", "bots"),
           5: ("5 · Attack detection (ML)", "attacks")}
 for n, (title, slug) in TITLES.items():

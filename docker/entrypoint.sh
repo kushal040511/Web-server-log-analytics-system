@@ -78,6 +78,15 @@ case "$ROLE" in
          spark-internal
     ;;
 
+  app)
+    # LogLens, the application frontend (port 3000): navigation, live numbers from HDFS,
+    # the attack checker (the saved Spark ML model) and the embedded Superset dashboards.
+    export PYTHONPATH="$SPARK_HOME/python:$SPARK_HOME/python/lib/py4j-0.10.9.7-src.zip:${PYTHONPATH:-}"
+    wait_for namenode 8020 "NameNode RPC"
+    log "starting LogLens on 3000"
+    exec python3 /workspace/app/app.py
+    ;;
+
   client)
     wait_for namenode 8020 "NameNode RPC"
     log "client container ready — run: docker compose exec client bash"

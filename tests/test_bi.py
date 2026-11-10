@@ -12,15 +12,6 @@ def sql_tables():
     return re.findall(r"CREATE TABLE (\w+) USING parquet", open(SQL).read())
 
 
-@pytest.fixture(scope="session")
-def published(ml, pipeline):
-    """make ml-audit + make ml-publish on the test lake."""
-    subprocess.run([sys.executable, os.path.join(ROOT, "scripts", "audit_nasa_flags.py"),
-                    str(ml["out"] / "ml" / "ml_results.json")], check=True, capture_output=True)
-    log = run_job("publish_ml_tables.py", ml["out"] / "ml", pipeline["reports"])
-    return log
-
-
 def test_ml_tables_published(published, pipeline, ml):
     rep = pipeline["reports"]
     comp = pd.read_parquet(rep / "ml_comparison")

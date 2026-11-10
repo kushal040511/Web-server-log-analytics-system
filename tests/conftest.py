@@ -98,3 +98,12 @@ def ml(pipeline):
     with open(pipeline["out"] / "ml" / "ml_results.json") as f:
         res = json.load(f)
     return dict(prepared=prepared, results=res, logs=logs, out=pipeline["out"])
+
+
+@pytest.fixture(scope="session")
+def published(ml, pipeline):
+    """make ml-audit + make ml-publish on the test lake."""
+    subprocess.run([sys.executable, os.path.join(ROOT, "scripts", "audit_nasa_flags.py"),
+                    str(ml["out"] / "ml" / "ml_results.json")], check=True, capture_output=True)
+    log = run_job("publish_ml_tables.py", ml["out"] / "ml", pipeline["reports"])
+    return log

@@ -11,16 +11,17 @@ reading the HDFS tables through the **Spark Thrift Server** (Spark SQL over JDBC
 | `sql/bi_tables.sql` | Registers every HDFS folder as a Spark table in the `weblogs` database |
 | `docker/entrypoint.sh` (`thrift` role) | Starts the Spark Thrift Server on the cluster (1 core, 1 GB) |
 | `superset/Dockerfile`, `superset_config.py`, `bootstrap.sh` | The Superset container with the Spark driver |
-| `superset/build_dashboards.py` | Creates the connection, 32 datasets, 52 charts and 5 dashboards through Superset's REST API |
+| `superset/build_dashboards.py` | Creates the connection, 32 datasets, 56 charts and 6 dashboards through Superset's REST API, with embedded mode on |
 | `jobs/publish_ml_tables.py` | Turns the ML results into Spark tables so the dashboards can chart them |
+| `app/` (team) | LogLens, the application: embeds the Superset dashboards with guest tokens |
 
 ```
-HDFS (Parquet)  ->  Spark Thrift Server :10000  ->  Apache Superset :8088
+HDFS (Parquet)  ->  Spark Thrift Server :10000  ->  Apache Superset :8088  ->  LogLens app :3000
 ```
 
 ## Demo (about 4 minutes)
 
-1. `make bi`, then open http://localhost:8088 and log in with `admin` / `admin`.
+1. `make bi`, then open the app at http://localhost:3000 (Superset itself: http://localhost:8088, `admin` / `admin`).
 2. **1 · Traffic overview** — the KPIs, requests per day, the hour-of-day and weekday profiles, top URLs.
 3. **2 · Errors and performance** — status codes, the daily 404 rate, broken links, response sizes.
 4. **3 · Anomaly detection** — the hourly traffic spike on 13 July and the 12 unusual hours against their normal level.
@@ -52,3 +53,5 @@ HDFS (Parquet)  ->  Spark Thrift Server :10000  ->  Apache Superset :8088
   can query the HDFS tables with the cluster doing the work.
 - *Why is traffic flat in late July?* — Days are missing from the dataset (a server outage), not a crash of our pipeline.
 - *Why only 300 rows in the top-URL table?* — A report table is capped; the true totals come from `access_logs`.
+- *Is the app a charting library?* — No. LogLens only lays out the pages; each chart in it is an Apache Superset
+  dashboard embedded with a guest token that can view only that dashboard. The Superset SDK draws it.

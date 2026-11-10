@@ -153,6 +153,29 @@ services:
       - ./superset:/app/loganalytics:ro
       - ./superset/superset_config.py:/app/pythonpath/superset_config.py:ro
 
+  # LogLens: the application frontend. Every chart in it is an embedded Superset dashboard.
+  app:
+    <<: *base
+    container_name: app
+    hostname: app
+    command: ["app"]
+    depends_on: [namenode, superset]
+    environment:
+      SUPERSET_URL: "http://superset:8088"          # from the app's server
+      SUPERSET_PUBLIC_URL: "http://localhost:8088"  # from your browser
+      WEBHDFS: "http://namenode:9870/webhdfs/v1"
+      APP_SPARK_MASTER: "local[1]"
+      APP_SPARK_MEMORY: "1g"
+    ports:
+      - "3000:3000"          # LogLens -> http://localhost:3000
+    volumes:
+      - ./app:/workspace/app
+      - ./conf/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml:ro
+      - ./conf/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml:ro
+      - ./conf/core-site.xml:/opt/spark/conf/core-site.xml:ro
+      - ./conf/hdfs-site.xml:/opt/spark/conf/hdfs-site.xml:ro
+      - ./conf/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf:ro
+
   # Optional — job history for demos.  docker compose --profile history up -d
   spark-history:
     <<: *base

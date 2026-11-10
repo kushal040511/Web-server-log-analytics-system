@@ -13,7 +13,15 @@ SQLLAB_ASYNC_TIME_LIMIT_SEC = 600
 # Cache chart results for an hour: the HDFS tables only change when the pipeline runs again.
 DATA_CACHE_CONFIG = {"CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 3600}
 
-FEATURE_FLAGS = {"DASHBOARD_CROSS_FILTERS": True, "DASHBOARD_NATIVE_FILTERS": True}
+FEATURE_FLAGS = {"DASHBOARD_CROSS_FILTERS": True, "DASHBOARD_NATIVE_FILTERS": True, "EMBEDDED_SUPERSET": True}
+
+# Embedded mode, for the LogLens app (port 3000): the app's server asks Superset for a
+# short-lived guest token that can only view one dashboard; the browser renders that
+# dashboard inside the app. Guests get the read-only Gamma role plus access to the datasets
+# of that one dashboard, nothing else. Superset may be framed by the app's page.
+GUEST_ROLE_NAME = "Gamma"
+GUEST_TOKEN_JWT_EXP_SECONDS = 3600
+HTTP_HEADERS = {}
 WTF_CSRF_ENABLED = False
 TALISMAN_ENABLED = False
 

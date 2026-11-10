@@ -1,5 +1,5 @@
 #!/bin/bash
-# Log Analytics System — start the cluster and the Superset dashboards.
+# Log Analytics System — start the cluster, the Superset dashboards and the LogLens app.
 # Runs only the stages whose results are missing: a cluster that already holds the data
 # goes straight to the dashboards (~10 min); an empty one runs the whole pipeline first.
 # Double-click in Finder. Progress is also written to output/run_dashboards.log.
@@ -38,13 +38,14 @@ if [ ! -f output/ml/ml_results.json ]; then
   stage "5 make ml (no ML results yet, ~2 h)"; make ml
 else
   echo "== ML results already in output/ml - skipping the ML stage"
+  $EXEC hdfs dfs -test -e /models/fm_attack/metadata || { stage "5 make ml-model (save the attack model for the app, ~5 min)"; make ml-model; }
 fi
 
-stage "6 make bi (ML tables -> Spark Thrift Server -> Superset dashboards)"
+stage "6 make bi (ML tables -> Spark Thrift Server -> Superset dashboards -> LogLens app)"
 for i in $(seq 1 40); do (echo > /dev/tcp/localhost/10000) 2>/dev/null && break; sleep 3; done
 for i in $(seq 1 40); do curl -sf http://localhost:8088/health >/dev/null && break; sleep 3; done
 make bi
 make status
 echo; echo "===== [$(date '+%H:%M:%S')] ALL DONE"
-echo "Dashboards: http://localhost:8088  (admin / admin)"
-open http://localhost:8088/superset/dashboard/traffic/ || true
+echo "LogLens app: http://localhost:3000    Superset: http://localhost:8088 (admin / admin)"
+open http://localhost:3000 || true

@@ -1,0 +1,49 @@
+{% from "_icons.html" import icon %}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}LogLens{% endblock %} · Log Analytics System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+</head>
+<body>
+
+<div class="shell">
+  <aside class="side">
+    <a class="brand" href="/">
+      <span class="logo"><svg viewBox="0 0 32 32"><circle cx="14" cy="14" r="9"/><path d="M21 21l7 7"/><path d="M9 15l3-4 3 3 3-5"/></svg></span>
+      <span><b>LogLens</b><small>Web log analytics</small></span>
+    </a>
+    <nav>
+      {% for key, label, href, ic in nav %}
+        <a href="{{ href }}" class="{{ 'on' if page == key }}">{{ icon(ic) }}{{ label }}</a>
+      {% endfor %}
+      <a href="{{ superset_public }}/sqllab/" target="_blank" rel="noopener">{{ icon("sql") }}SQL Lab (Superset) ↗</a>
+    </nav>
+    <div class="side-card">
+      <div class="side-card-ic">{{ icon("database") }}</div>
+      <b>Big data under the hood</b>
+      <p>Hadoop HDFS stores the logs, Spark cleans and analyses them, Spark MLlib detects bots and attacks, Apache Superset draws every chart.</p>
+      <a class="btn small" href="/pipeline">See the pipeline →</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="top">
+      <div class="crumb">{% block crumb %}{% endblock %}</div>
+      <div class="pills">
+        <span class="pill {{ 'ok' if status.spark == 'ready' else 'warn' }}" title="SparkSession of this app">Spark · {{ status.spark }}</span>
+        <span class="pill {{ 'ok' if status.model == 'ready' else 'warn' }}" title="Factorization Machine loaded from HDFS">Model · {{ status.model }}</span>
+        <a class="pill link" href="{{ superset_public }}" target="_blank" rel="noopener">Superset ↗</a>
+        <span class="user"><span class="avatar">KK</span><span><b>Team BDE</b><small>Kushal · Kriti · Gargi</small></span></span>
+      </div>
+    </header>
+    {% block content %}{% endblock %}
+    <footer class="foot">Log Analytics System · Big Data Essentials · SRM IST · Hadoop HDFS · Apache Spark · Spark MLlib · Apache Superset</footer>
+  </main>
+</div>
+{% block scripts %}{% endblock %}
+</body>
+</html>
