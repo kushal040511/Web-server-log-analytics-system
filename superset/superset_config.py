@@ -16,3 +16,7 @@ DATA_CACHE_CONFIG = {"CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 3600}
 FEATURE_FLAGS = {"DASHBOARD_CROSS_FILTERS": True, "DASHBOARD_NATIVE_FILTERS": True}
 WTF_CSRF_ENABLED = False
 TALISMAN_ENABLED = False
+
+# build_dashboards.py creates ~90 objects through the REST API in a few seconds; the default
+# rate limit (50 requests per second) would refuse some of them.
+RATELIMIT_ENABLED = False

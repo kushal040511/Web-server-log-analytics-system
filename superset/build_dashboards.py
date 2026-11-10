@@ -49,7 +49,11 @@ def login():
 
 
 def call(method, path, **kw):
-    r = s.request(method, API + path, timeout=120, **kw)
+    for attempt in range(8):
+        r = s.request(method, API + path, timeout=120, **kw)
+        if r.status_code != 429:          # rate limited: wait and try again
+            break
+        time.sleep(1 + attempt)
     if not r.ok:
         sys.exit(f"{method} {path} -> {r.status_code}: {r.text[:500]}")
     return r.json() if r.text else {}

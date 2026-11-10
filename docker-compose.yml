@@ -151,6 +151,7 @@ services:
     volumes:
       - superset-home:/app/superset_home
       - ./superset:/app/loganalytics:ro
+      - ./superset/superset_config.py:/app/pythonpath/superset_config.py:ro
 
   # Optional — job history for demos.  docker compose --profile history up -d
   spark-history:

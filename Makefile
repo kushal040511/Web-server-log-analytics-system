@@ -22,7 +22,7 @@ build:           ## build the image (first run downloads ~1.1 GB of Apache tarba
 	$(DC) build
 
 up:              ## start the cluster and wait for HDFS to accept writes
-	$(DC) up -d
+	$(DC) up -d --remove-orphans
 	@echo "waiting for HDFS to leave safe mode ..."
 	@for i in $$(seq 1 60); do \
 	   if $(EXEC) hdfs dfsadmin -safemode get 2>/dev/null | grep -q OFF; then \
