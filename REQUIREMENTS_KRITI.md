@@ -53,12 +53,12 @@ and type the command on the right — it does exactly what the `make` target doe
 | `make etl` | `docker compose exec -T client spark-submit /workspace/jobs/etl.py` |
 | `make reports` | `docker compose exec -T client spark-submit /workspace/jobs/reports.py` |
 | `make anomalies` | `docker compose exec -T client spark-submit /workspace/jobs/anomalies.py` |
-| `make dashboard` | `docker compose exec -T client spark-submit /workspace/jobs/export_dashboard.py` |
+| `make bi` | see REQUIREMENTS_GARGI.md (Superset dashboards) |
 | `make report T=top_urls N=5` | ``docker compose exec -T client spark-sql -e 'SELECT * FROM parquet.`hdfs://namenode:8020/data/weblogs/reports/top_urls` LIMIT 5'`` |
 | `make down` | `docker compose down` |
 
 Full run, in order: build → up → (wait) → ingest 1 → ingest 2 → etl → reports → anomalies → dashboard.
-Then open http://localhost:8050 (website), http://localhost:9870 (HDFS), http://localhost:8080 (Spark).
+Then open http://localhost:8088 (dashboards, admin / admin), http://localhost:9870 (HDFS), http://localhost:8080 (Spark).
 
 ## Your demo, in PowerShell
 

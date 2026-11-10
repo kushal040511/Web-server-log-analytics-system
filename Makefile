@@ -43,7 +43,8 @@ status:          ## show cluster health and the web UIs
 	@echo
 	@$(DC) ps --format "table {{.Name}}\t{{.Status}}" 2>/dev/null || $(DC) ps
 	@echo
-	@echo "  Website      http://localhost:8050"
+	@echo "  Dashboards   http://localhost:8088   (Apache Superset, admin / admin)"
+	@echo "  Spark SQL    jdbc:hive2://localhost:10000/weblogs   (Spark Thrift Server)"
 	@echo "  HDFS         http://localhost:9870"
 	@echo "  Spark master http://localhost:8080"
 	@echo "  Spark worker http://localhost:8081"
@@ -80,35 +81,35 @@ anomalies:       ## Z-score anomaly detection on hourly and daily traffic (Spark
 bots:            ## run the GMM automated-traffic detector (Spark MLlib, unsupervised)
 	$(EXEC) spark-submit /workspace/jobs/bot_detection.py
 
-dashboard:       ## export report tables to ./output for the website (JSON + CSV downloads)
-	$(EXEC) spark-submit /workspace/jobs/export_dashboard.py
-	@echo
-	@echo "  Website ready → http://localhost:8050"
-
-standalone:      ## export the site to output/site/ + site.zip — opens with no server
-	$(DC) exec -T web python3 /workspace/scripts/make_standalone.py 2>/dev/null \
-	  || python3 scripts/make_standalone.py
-
-web:             ## (re)start just the website
-	$(DC) up -d web
-	@echo "  http://localhost:8050"
-
-site:            ## rebuild the site's data and restart it
-	@$(MAKE) --no-print-directory dashboard
-	$(DC) restart web
-	@echo "  http://localhost:8050"
-
-skeleton: ingest etl reports anomalies dashboard  ## the end-to-end thin slice: raw -> HDFS -> Spark -> reports -> anomalies -> web
+skeleton: ingest etl reports anomalies  ## the end-to-end thin slice: raw -> HDFS -> Spark ETL -> Spark SQL reports -> anomalies
 	@echo
 	@echo "=============================================="
 	@echo " End-to-end pipeline complete."
-	@echo " Website:      http://localhost:8050"
 	@echo " HDFS browser: http://localhost:9870"
 	@echo " Spark master: http://localhost:8080"
+	@echo " Dashboards:   make bi, then http://localhost:8088"
 	@echo "=============================================="
 
 
-all: skeleton bots dashboard  ## first half + bot detection, then re-export the site
+all: skeleton bots bi  ## pipeline + bot detection + the BI dashboards
+
+## ---------------------------------------------------------------- dashboards (Apache Superset)
+# Superset reads the Parquet tables in HDFS through the Spark Thrift Server (Spark SQL over JDBC).
+
+ml-publish:      ## turn the ML results (output/ml/*.json) into Spark tables in HDFS for the dashboards
+	$(EXEC) spark-submit /workspace/jobs/publish_ml_tables.py
+
+bi-tables:       ## register every HDFS table in the Spark Thrift Server (database weblogs)
+	$(EXEC) beeline -u jdbc:hive2://thrift:10000 --force=true --silent=true \
+	  --hivevar BASE=$(HDFS)/data/weblogs -f /workspace/sql/bi_tables.sql
+
+dashboards:      ## (re)build the 5 Superset dashboards from superset/build_dashboards.py
+	$(DC) exec -T superset python /app/loganalytics/build_dashboards.py \
+	  http://localhost:8088 admin admin hive://thrift:10000/weblogs
+	@echo
+	@echo "  Dashboards: http://localhost:8088  (admin / admin)"
+
+bi: ml-publish bi-tables dashboards  ## publish ML tables, register all tables, build the dashboards
 
 ## ---------------------------------------------------------------- inspect
 
@@ -127,7 +128,7 @@ sql:             ## open an interactive Spark SQL prompt against the curated dat
 fsck:            ## prove replication is real — every block should have 2 copies
 	$(EXEC) hdfs fsck /data/weblogs/raw -files -blocks -locations | tail -25
 
-.PHONY: help build up down destroy status logs shell data ingest etl reports anomalies bots dashboard standalone web site skeleton all ls report sql fsck
+.PHONY: help build up down destroy status logs shell data ingest etl reports anomalies bots skeleton all ml-publish bi-tables dashboards bi ls report sql fsck
 
 ## ---------------------------------------------------------------- machine learning
 # Web-attack detection: Factorization Machine vs 7 Spark MLlib models.
@@ -147,7 +148,7 @@ ml-prep:         ## ML preprocessing: clean, bias fix, de-duplicate, 80/20 split
 ml-train:        ## train FM + 7 models, confusion matrices, score the NASA logs (~30-40 min)
 	$(EXEC) spark-submit /workspace/jobs/ml_train.py
 	@echo
-	@echo "  Results: http://localhost:8050/ml  (also output/ml/ml_report.html)"
+	@echo "  Results: output/ml/ml_report.html; dashboards: make bi, then http://localhost:8088"
 
 ml-cross:        ## cross-dataset test: train on one dataset, test on the other (~10 min)
 	$(EXEC) spark-submit /workspace/jobs/ml_crossdataset.py
@@ -161,7 +162,7 @@ ml-robust:       ## repeat the top 3 models on 5 random splits: mean ± std, ROC
 ml-audit:        ## sort the NASA URLs the model flags into hand-checked categories
 	$(EXEC) python3 /workspace/scripts/audit_nasa_flags.py /workspace/output/ml/ml_results.json
 
-ml: ml-data ml-ingest ml-prep ml-tune ml-train ml-cross ml-robust ml-audit  ## the whole ML stage; results on http://localhost:8050/ml
+ml: ml-data ml-ingest ml-prep ml-tune ml-train ml-cross ml-robust ml-audit  ## the whole ML stage; then `make bi` for the dashboards
 
 .PHONY: ml-data ml-ingest ml-prep ml-tune ml-train ml-cross ml-robust ml-audit ml
 

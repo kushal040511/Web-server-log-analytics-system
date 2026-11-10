@@ -1,5 +1,5 @@
 #!/bin/bash
-# Log Analytics System — run EVERYTHING: build, cluster, pipeline, bot detection, full ML stage, website.
+# Log Analytics System — run EVERYTHING: build, cluster, pipeline, bot detection, full ML stage, BI dashboards (Apache Superset).
 # Double-click in Finder. Progress is also written to output/run_everything.log.
 cd "$(dirname "$0")"
 mkdir -p output
@@ -22,10 +22,10 @@ docker info --format 'Docker memory: {{.MemTotal}}' | awk '{printf "== Docker me
 set -e
 stage "1/6 make build";  make build
 stage "2/6 make up";     make up
-stage "3/6 make all  (ingest -> ETL -> 11 reports -> Z-score anomalies -> bot detection -> dashboard)"; make all
+stage "3/6 make all  (ingest -> ETL -> 11 reports -> Z-score anomalies -> bot detection -> dashboards)"; make all
 stage "4/6 make ml   (attack data -> preprocessing -> tuning -> 8 models -> cross-dataset -> stability -> NASA audit, ~2 h)"; make ml
-stage "5/6 make site (re-export and restart the website)"; make site
+stage "5/6 make bi   (ML tables -> Spark Thrift Server -> Superset dashboards)"; make bi
 stage "6/6 status";      make status
 echo; echo "===== [$(date '+%H:%M:%S')] ALL DONE"
-echo "Website: http://localhost:8050   HDFS: http://localhost:9870   Spark: http://localhost:8080"
-open http://localhost:8050 || true
+echo "Dashboards: http://localhost:8088 (admin / admin)   HDFS: http://localhost:9870   Spark: http://localhost:8080"
+open http://localhost:8088 || true

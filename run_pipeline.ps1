@@ -55,7 +55,7 @@ if ($Stage -ne "ml") {
     # -------------------------------------------------------------- cluster (make build, make up)
     Step "build: image with Java 11, Hadoop 3.3.6, Spark 3.5.3 (first time ~10 min)"
     docker image inspect loganalytics/hadoop-spark:3.3.6-3.5.3 *> $null
-    if ($LASTEXITCODE -eq 0 -and $env:REBUILD -ne "1") { Write-Host "  image already built - skipping (set REBUILD=1 to rebuild)" }
+    if ($LASTEXITCODE -eq 0 -and $env:REBUILD -ne "1") { Write-Host "  image already built - skipping (set REBUILD=1 to rebuild)"; Run @("docker", "compose", "build", "superset") }
     else { Run @("docker", "compose", "build") }
     Step "up: start the 7 containers and wait for HDFS"
     Run @("docker", "compose", "up", "-d")
@@ -75,7 +75,7 @@ if ($Stage -ne "ml") {
     Step "etl: Spark parses the logs into Parquet";              Exec @("spark-submit", "/workspace/jobs/etl.py")
     Step "reports: 11 Spark SQL reports";                         Exec @("spark-submit", "/workspace/jobs/reports.py")
     Step "anomalies: Z-score on hourly and daily traffic";         Exec @("spark-submit", "/workspace/jobs/anomalies.py")
-    Step "dashboard: export the reports for the website";          Exec @("spark-submit", "/workspace/jobs/export_dashboard.py")
+    Step "bots: GMM bot detection (Spark MLlib)";                   Exec @("spark-submit", "/workspace/jobs/bot_detection.py")
     Step "fsck: every block has 2 copies";                         Exec @("hdfs", "fsck", "/data/weblogs/raw", "-files", "-blocks")
 }
 
@@ -98,8 +98,10 @@ if ($Stage -ne "skeleton") {
     Exec @("python3", "/workspace/scripts/audit_nasa_flags.py", "/workspace/output/ml/ml_results.json")
 }
 
-Step "web: restart the website"
-Run @("docker", "compose", "up", "-d", "web")
-Write-Host "`n== DONE  Website http://localhost:8050   HDFS http://localhost:9870   Spark http://localhost:8080" -ForegroundColor Green
+Step "bi: ML tables -> Spark Thrift Server -> Superset dashboards"
+Exec @("spark-submit", "/workspace/jobs/publish_ml_tables.py")
+Exec @("beeline", "-u", "jdbc:hive2://thrift:10000", "--force=true", "--silent=true", "--hivevar", "BASE=hdfs://namenode:8020/data/weblogs", "-f", "/workspace/sql/bi_tables.sql")
+Run @("docker", "compose", "exec", "-T", "superset", "python", "/app/loganalytics/build_dashboards.py", "http://localhost:8088", "admin", "admin", "hive://thrift:10000/weblogs")
+Write-Host "`n== DONE  Dashboards http://localhost:8088 (admin / admin)   HDFS http://localhost:9870   Spark http://localhost:8080" -ForegroundColor Green
 Add-Content $Log "DONE $(Get-Date -Format s)"
 Stop-Transcript | Out-Null

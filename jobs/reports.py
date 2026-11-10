@@ -25,9 +25,9 @@ print(f"[reports] {logs.count():,} records from {CURATED}")
 R = {}
 
 # The "top N" reports are capped so a report table stays a report rather than a
-# copy of the whole log. 300 is chosen to be worth searching and paginating on
-# the website — the earlier 25 made the site's search box look broken, because
-# it was searching a table that had already been cut down to one screenful.
+# copy of the whole log. 300 is chosen to be worth searching and paginating in
+# the dashboard tables; a cap of 25 would leave the dashboard's search box
+# searching a table already cut down to one screenful.
 def run(name, sql, limit=None, show=8):
     df = spark.sql(sql)
     if limit:

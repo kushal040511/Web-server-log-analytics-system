@@ -159,6 +159,18 @@ print(json.dumps(out, indent=2, default=str))
 spark.createDataFrame([(json.dumps(out, default=str),)], ["json"]) \
      .coalesce(1).write.mode("overwrite").text(f"{OUT}/bot_detection_summary")
 
-pred.select("host", "prediction", "n_requests", "head_ratio", "hit_robots") \
-    .write.mode("overwrite").parquet(f"{OUT}/host_clusters")
+# Tables for the BI dashboards: one row per host with its segment, one row per GMM component
+# (raw feature values from `hosts`; `pred` holds the log-scaled ones)
+(pred.select("host", "prediction").join(hosts, "host")
+     .withColumn("segment", F.when(F.col("prediction") == auto_id, "automated").otherwise("human browsing"))
+     .select("host", "prediction", "segment", "n_requests", "head_ratio", "image_ratio", "med_gap",
+             "n_sessions", "error_ratio", "hit_robots")
+     .write.mode("overwrite").parquet(f"{OUT}/host_clusters"))
+spark.createDataFrame([{k: (float(v) if isinstance(v, float) else v) for k, v in r.items()} for r in table]) \
+     .write.mode("overwrite").parquet(f"{OUT}/bot_clusters")
+spark.createDataFrame([(N, POS, auto["hosts"], float(auto["pct_hosts"]), float(auto["pct_requests"]),
+                        auto["known_crawlers"], round(recall, 1), round(lift, 1), round(sil, 4))],
+                      ["hosts_clustered", "known_crawlers", "hosts_flagged", "pct_hosts_flagged",
+                       "pct_requests_flagged", "crawlers_caught", "recall_pct", "lift_vs_random", "silhouette"]) \
+     .write.mode("overwrite").parquet(f"{OUT}/bot_summary")
 spark.stop()

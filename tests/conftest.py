@@ -71,15 +71,14 @@ def run_job(name, *args, env=None):
 
 @pytest.fixture(scope="session")
 def pipeline(tmp_path_factory):
-    """raw -> etl -> reports -> anomalies -> export_dashboard, exactly as `make skeleton`."""
+    """raw -> etl -> reports -> anomalies, exactly as `make skeleton`."""
     d = tmp_path_factory.mktemp("lake")
     raw, curated, reports, out = d / "raw", d / "curated", d / "reports", d / "output"
-    raw.mkdir()
+    raw.mkdir(); out.mkdir()
     n_lines = synthetic_log(raw / "access_log_test")
     logs = {"etl": run_job("etl.py", raw, curated),
             "reports": run_job("reports.py", curated, reports),
-            "anomalies": run_job("anomalies.py", curated, reports),
-            "export": run_job("export_dashboard.py", reports, curated, out)}
+            "anomalies": run_job("anomalies.py", curated, reports)}
     return dict(dir=d, raw=raw, curated=curated, reports=reports, out=out, n_lines=n_lines, logs=logs)
 
 

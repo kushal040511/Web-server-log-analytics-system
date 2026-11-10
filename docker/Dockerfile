@@ -41,8 +41,7 @@ RUN set -eux; \
 
 # numpy is required by pyspark.ml (the GMM and ML jobs fail on import without it);
 # pandas + pyarrow are required by pyspark.ml.functions (vector_to_array in ml_train.py);
-# flask serves the dashboard.
-RUN pip3 install --no-cache-dir numpy==1.26.4 pandas==2.2.3 pyarrow==17.0.0 flask==3.0.3
+RUN pip3 install --no-cache-dir numpy==1.26.4 pandas==2.2.3 pyarrow==17.0.0
 
 # Hadoop's scripts read JAVA_HOME from hadoop-env.sh, not just the environment
 RUN echo "export JAVA_HOME=${JAVA_HOME}" >> "$HADOOP_CONF_DIR/hadoop-env.sh" \

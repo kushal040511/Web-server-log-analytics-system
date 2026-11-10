@@ -87,8 +87,8 @@ services:
     command: ["spark-worker"]
     depends_on: [spark-master]
     environment:
-      # 2 cores + 2g for a pipeline job's executor, 1 core + 1g for the web
-      # SQL console's long-lived session, so neither can starve the other.
+      # 2 cores + 2g for a pipeline job's executor, 1 core + 1g for the Spark
+      # Thrift Server that answers the dashboards, so neither can starve the other.
       SPARK_WORKER_CORES: "3"
       SPARK_WORKER_MEMORY: "3g"
     ports:
@@ -110,32 +110,47 @@ services:
       - ./conf/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf:ro
       - ./jobs:/workspace/jobs
       - ./scripts:/workspace/scripts:ro
+      - ./sql:/workspace/sql:ro
       - ./data:/workspace/data
       - ./output:/workspace/output
 
-  # The website. Report pages read ./output only, so they survive the cluster
-  # going down; the /sql page opens a real SparkSession, which is why this
-  # container also gets the cluster config.
-  web:
+  # Spark Thrift Server: Spark SQL over JDBC/ODBC (port 10000). BI tools connect here; every
+  # dashboard query runs as a Spark SQL job on the cluster against the Parquet tables in HDFS.
+  thrift:
     <<: *base
-    container_name: web
-    hostname: web
-    command: ["web"]
-    depends_on: [namenode, spark-master]
+    container_name: thrift
+    hostname: thrift
+    command: ["thrift"]
+    depends_on: [namenode, spark-master, spark-worker]
     ports:
-      - "8050:8050"          # website -> http://localhost:8050
+      - "10000:10000"        # JDBC  jdbc:hive2://localhost:10000/weblogs
+      - "4040:4040"          # Spark UI of the Thrift Server (the dashboard queries)
     volumes:
-      - ./web:/workspace/web
-      - ./output:/workspace/output
-      # the Log explorer page searches and replays the raw files directly
-      - ./data:/workspace/data:ro
-      # `make standalone` renders the site through this container (Flask lives here)
-      - ./scripts:/workspace/scripts:ro
+      - thrift-metastore:/metastore
       - ./conf/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml:ro
       - ./conf/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml:ro
       - ./conf/core-site.xml:/opt/spark/conf/core-site.xml:ro
       - ./conf/hdfs-site.xml:/opt/spark/conf/hdfs-site.xml:ro
       - ./conf/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf:ro
+
+  # Apache Superset: the frontend. Dashboards and SQL Lab on top of the Spark Thrift Server.
+  superset:
+    build:
+      context: .
+      dockerfile: superset/Dockerfile
+    image: loganalytics/superset:4.1.1
+    container_name: superset
+    hostname: superset
+    restart: unless-stopped
+    depends_on: [thrift]
+    environment:
+      SPARK_SQL_URI: "hive://thrift:10000/weblogs"
+      SUPERSET_ADMIN_PASSWORD: "admin"
+    ports:
+      - "8088:8088"          # dashboards -> http://localhost:8088  (admin / admin)
+    volumes:
+      - superset-home:/app/superset_home
+      - ./superset:/app/loganalytics:ro
 
   # Optional — job history for demos.  docker compose --profile history up -d
   spark-history:
@@ -150,6 +165,8 @@ services:
     volumes: *conf-volumes
 
 volumes:
+  thrift-metastore:
+  superset-home:
   namenode-data:
   datanode1-data:
   datanode2-data:

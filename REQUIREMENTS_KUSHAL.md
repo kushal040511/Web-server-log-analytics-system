@@ -7,7 +7,7 @@ inside the Docker image the first time you run `make build`.
 
 | Install | Version | Why | Check it works |
 |---|---|---|---|
-| Docker Desktop | 4.x or newer | Runs the whole cluster (HDFS + Spark + website) | `docker --version` |
+| Docker Desktop | 4.x or newer | Runs the whole cluster (HDFS + Spark + Superset dashboards) | `docker --version` |
 | Docker memory | at least 8 GB | Docker Desktop → Settings → Resources → Memory (default 4 GB is too little) | `docker info \| grep "Total Memory"` |
 | make | any | Runs the `make up`, `make etl` ... commands | `make --version` |
 | curl + gunzip | any | Downloads and unzips the NASA logs | `curl --version` |
@@ -33,7 +33,7 @@ Optional: VS Code to read the code, Git to share changes.
 ```bash
 make data && make build && make up && make skeleton
 ```
-Then open http://localhost:8050 (website), http://localhost:9870 (HDFS), http://localhost:8080 (Spark).
+Then open http://localhost:8088 (dashboards, admin / admin), http://localhost:9870 (HDFS), http://localhost:8080 (Spark).
 
 ## Extra for your part (optional — to test your jobs without Docker)
 

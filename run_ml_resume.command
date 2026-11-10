@@ -1,6 +1,6 @@
 #!/bin/bash
 # Resume the ML stage after the pandas fix: rebuild the image (only the Python layer changes),
-# restart the cluster (HDFS data is kept), then train -> cross-dataset -> stability -> audit -> website.
+# restart the cluster (HDFS data is kept), then train -> cross-dataset -> stability -> audit -> dashboards.
 cd "$(dirname "$0")"
 LOG=output/run_everything.log
 exec > >(tee -a "$LOG") 2>&1
@@ -13,6 +13,6 @@ stage "R3 make ml-train (8 models, ~30-40 min)"; make ml-train
 stage "R4 make ml-cross";  make ml-cross
 stage "R5 make ml-robust"; make ml-robust
 stage "R6 make ml-audit";  make ml-audit
-stage "R7 make site";      make site
+stage "R7 make bi";        make bi
 echo; echo "===== [$(date '+%H:%M:%S')] ALL DONE"
-open http://localhost:8050/ml || true
+open http://localhost:8088/superset/dashboard/attacks/ || true

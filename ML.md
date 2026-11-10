@@ -21,7 +21,7 @@ make ml          # every target below, in order (about 2 hours on the laptop clu
 | `make ml-robust` | `jobs/ml_robustness.py`: top 3 models on 5 random splits; mean ± std, ROC-AUC, PR-AUC, McNemar's test |
 | `make ml-audit` | `scripts/audit_nasa_flags.py`: sorts the NASA URLs the model flags into hand-checked categories |
 
-Results appear on the website at http://localhost:8050/ml (Attack detection page).
+Then `make bi`: the results appear in the **5 · Attack detection (ML)** dashboard in Apache Superset (http://localhost:8088).
 
 ## Data and preprocessing (`jobs/ml_preprocess.py`)
 
