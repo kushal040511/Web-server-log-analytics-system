@@ -24,4 +24,5 @@ echo; echo "== make build (first run downloads ~1.1 GB of Apache tarballs)"; mak
 echo; echo "== make up";       make up
 echo; echo "== make skeleton"; make skeleton
 echo
-echo "== DONE. Website: http://localhost:8050   HDFS: http://localhost:9870   Spark: http://localhost:8080"
+echo; echo "== make bi";       make bi
+echo "== DONE. Dashboards: http://localhost:8088 (admin / admin)   HDFS: http://localhost:9870   Spark: http://localhost:8080"

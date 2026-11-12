@@ -58,12 +58,33 @@ case "$ROLE" in
     exec "$SPARK_HOME"/bin/spark-class org.apache.spark.deploy.history.HistoryServer
     ;;
 
-  web)
-    # No wait_for here on purpose: the report pages only need ./output, so the
-    # site must come up even when the cluster is down.
+  thrift)
+    # Spark Thrift Server (HiveServer2 protocol) for the BI dashboards. It runs on the
+    # cluster with 1 core and 1g, leaving 2 cores and 2g of the worker for pipeline jobs.
+    # Table definitions live in a Derby metastore on a volume (make bi-tables fills it).
+    wait_for namenode 8020 "NameNode RPC"
+    wait_for spark-master 7077 "Spark master"
+    log "starting Spark Thrift Server (JDBC on 10000)"
+    cd /metastore
+    exec "$SPARK_HOME"/bin/spark-submit \
+         --class org.apache.spark.sql.hive.thriftserver.HiveThriftServer2 \
+         --name "thrift-server (dashboards)" \
+         --master spark://spark-master:7077 \
+         --driver-memory 1g --executor-memory 1g \
+         --conf spark.executor.cores=1 --conf spark.cores.max=1 \
+         --conf "spark.hadoop.javax.jdo.option.ConnectionURL=jdbc:derby:;databaseName=/metastore/metastore_db;create=true" \
+         --hiveconf hive.server2.thrift.port=10000 \
+         --hiveconf hive.server2.thrift.bind.host=0.0.0.0 \
+         spark-internal
+    ;;
+
+  app)
+    # LogLens, the application frontend (port 3000): navigation, live numbers from HDFS,
+    # the attack checker (the saved Spark ML model) and the embedded Superset dashboards.
     export PYTHONPATH="$SPARK_HOME/python:$SPARK_HOME/python/lib/py4j-0.10.9.7-src.zip:${PYTHONPATH:-}"
-    log "starting the website on 8050"
-    exec python3 /workspace/web/app.py
+    wait_for namenode 8020 "NameNode RPC"
+    log "starting LogLens on 3000"
+    exec python3 /workspace/app/app.py
     ;;
 
   client)

@@ -68,12 +68,3 @@ def test_zscore_finds_the_injected_burst(pipeline):
     assert (top["date"], top["hour"], top["kind"]) == ("1995-07-03", 14, "spike")
     assert top["z"] > 3
     assert (hours["z"].abs() > 3).all()                         # only |z| > 3 is flagged
-
-
-def test_dashboard_export(pipeline):
-    out = pipeline["out"]
-    data = json.load(open(out / "dashboard.json"))
-    assert data["meta"]["records"] == len(read(pipeline["curated"]))
-    assert data["meta"]["days"] == 21
-    csvs = {f.stem for f in (out / "tables").glob("*.csv")}
-    assert set(REPORTS) <= csvs and {"anomaly_hours", "anomaly_days"} <= csvs

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block title %}Check a request{% endblock %}
+{% block crumb %}Dashboard / <b>Check a request</b>{% endblock %}
+{% block content %}
+<section class="page-h">
+  <div>
+    <h1>Check a request</h1>
+    <p>Paste a URL or a query string. The saved Spark ML model (Factorization Machine, F1 {{ (k.fm or {}).get('f1')|num(4) }}
+       on 261,076 test requests) decides whether it is a web attack.</p>
+  </div>
+</section>
+
+<section class="grid2">
+  <div class="card span2">
+    <form method="post" action="/check" class="check-form">
+      <label for="request">HTTP request (URL or parameters)</label>
+      <textarea id="request" name="request" rows="3" placeholder="/search.php?q=apollo 13" required>{{ text }}</textarea>
+      <div class="row">
+        <button class="btn" type="submit">{{ icon("shield") }} Check request</button>
+        <span class="muted">Examples:</span>
+        {% for name, ex in examples %}<a class="chip" href="/check?q={{ ex|urlencode }}">{{ name }}</a>{% endfor %}
+      </div>
+    </form>
+
+    {% if error %}<div class="result err"><b>Could not check it.</b> {{ error }}</div>{% endif %}
+    {% if result %}
+    <div class="result {{ 'bad' if result.attack else 'good' }}">
+      <div class="gauge" style="--p: {{ (100 * result.p_attack)|round(1) }}">
+        <div><b>{{ (100 * result.p_attack)|num(1) }}%</b><small>probability of attack</small></div>
+      </div>
+      <div class="verdict">
+        <span class="badge big {{ 'bad' if result.attack else 'good' }}">{{ 'ATTACK' if result.attack else 'NORMAL' }}</span>
+        <h3>{{ 'The model flags this request as an attack.' if result.attack else 'The model sees an ordinary request.' }}</h3>
+        <dl>
+          <dt>What the model read</dt><dd class="mono">{{ result.normalised }}</dd>
+          <dt>Length</dt><dd>{{ result.length }} characters</dd>
+          <dt>Special characters</dt><dd>{{ result.special }}</dd>
+          <dt>Digits</dt><dd>{{ result.digits }}</dd>
+          <dt>Attack signals</dt><dd>{% if result.signals %}{% for s in result.signals %}<span class="badge warn">{{ s }}</span> {% endfor %}{% else %}none{% endif %}</dd>
+          <dt>Scored in</dt><dd>{{ result.ms }} ms by Spark</dd>
+        </dl>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h3>How the check works</h3></div>
+    <ol class="steps">
+      <li><b>Normalise</b> the request like the training data: URL-decode, lower-case, keep only the part after <code>?</code>.</li>
+      <li><b>Features</b>: every character, pair and triple of characters, hashed into 3 × 4,096 buckets, plus length, special-character, digit and keyword counts = 12,292 numbers.</li>
+      <li><b>Factorization Machine</b> (Spark MLlib): a weight per feature plus a learned interaction between every pair of features, so “<code>'</code> together with <code>or</code>” counts more than either alone.</li>
+      <li><b>Decide</b>: probability above 50% = attack.</li>
+    </ol>
+    <div class="card-h" style="margin-top:14px"><h3>Recent checks</h3></div>
+    {% if recent %}<ul class="recent">{% for r in recent %}
+      <li><span class="mono">{{ r.normalised[:26] }}{% if r.normalised|length > 26 %}…{% endif %}</span>
+          <span class="badge {{ 'bad' if r.attack else 'good' }}">{{ 'Attack' if r.attack else 'Normal' }}</span>
+          <b>{{ (100 * r.p_attack)|num(1) }}%</b></li>{% endfor %}</ul>
+    {% else %}<p class="muted">Nothing checked yet.</p>{% endif %}
+  </div>
+</section>
+<p class="note">The model was trained on modern attack datasets (HttpParams, Fwaf). It is a research prototype, not a firewall:
+on the 1995 NASA logs it flags 0.05% of requests, and none of those is a real attack.</p>
+{% endblock %}
